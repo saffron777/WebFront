@@ -1,0 +1,11 @@
+.image-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .login-image {
+    width: 100px; /* Ajusta según el tamaño deseado */
+    height: auto;
+    border-radius: 8px; /* Opcional: redondear bordes */
+  }

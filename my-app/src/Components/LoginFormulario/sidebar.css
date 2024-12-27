@@ -1,0 +1,154 @@
+/* Estilos para el contenedor principal */
+.container {
+  display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background-color: orange;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.sidebar .logo {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.nav-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.nav-items li {
+  width: 100%;
+}
+
+.nav-items a {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  text-decoration: none;
+  color: white;
+  font-size: 16px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.nav-items a .nav-icon {
+  margin-right: 10px; /* Margen entre el icono y el texto */
+}
+
+.nav-items a:hover {
+  background-color: #f1c825;
+}
+
+.logout-button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  width: 100%;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #c0392b;
+}
+
+/* Contenido principal */
+.main-content {
+  margin-left: 260px;
+  padding: 20px;
+  width: calc(100% - 260px); /* Ajuste del contenido al lado del sidebar */
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+/* Estilos para la tabla CRUD */
+.crud-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.crud-table th, .crud-table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.crud-table th {
+  background-color: orange;
+  color: white;
+}
+
+.crud-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.crud-table button {
+  padding: 6px 12px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 4px;
+  background-color: orangered;
+  color: white;
+  cursor: pointer;
+}
+
+.crud-table button:hover {
+  background-color: rgba(255, 68, 0, 0.211);
+}
+
+/* Estilos para el botón Agregar Usuario */
+.add-user-btn-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.add-user-btn {
+  background-color: rgb(114, 195, 0);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-user-btn:hover {
+  background-color: #16a085;
+}
+/* Estilos para el logo */
+.sidebar-logo {
+  width: 100px; /* Ajusta el tamaño según lo que necesites */
+  height: auto;
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto;
+}  
