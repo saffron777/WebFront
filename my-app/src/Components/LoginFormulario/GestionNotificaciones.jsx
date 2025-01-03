@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import './sidebar.css'; // Estilos generales
 import loginImage from '../Assets/icon-image.png';
 import { FaUser, FaBuilding, FaCar, FaClipboardList, FaTruck, FaBell } from 'react-icons/fa';
+import { db } from '../../firebaseconfig.js';
+import { collection, addDoc } from 'firebase/firestore'; // Importa Firestore
 
 function NotificationPanel() {
   const [message, setMessage] = useState('');
@@ -9,15 +11,34 @@ function NotificationPanel() {
   const [isRecurrent, setIsRecurrent] = useState(false);
   const [recurrence, setRecurrence] = useState('');
 
-  const handleSendNotification = () => {
+  const handleSendNotification = async () => {
+    if (!message) {
+      alert('El mensaje no puede estar vacío.');
+      return;
+    }
+
+    // Datos de la notificación
     const notificationData = {
       message,
       driverType,
       isRecurrent,
       recurrence: isRecurrent ? recurrence : null,
+      timestamp: new Date().toISOString(), // Fecha y hora de creación
     };
-    console.log('Notificación enviada:', notificationData);
-    alert('Notificación enviada correctamente');
+
+    try {
+      // Guarda en Firestore
+      await addDoc(collection(db, 'notificationes'), notificationData);
+      alert('Notificación registrada correctamente en Firebase.');
+      // Limpia los campos del formulario
+      setMessage('');
+      setDriverType('internos');
+      setIsRecurrent(false);
+      setRecurrence('');
+    } catch (error) {
+      console.error('Error registrando la notificación:', error);
+      alert('Hubo un error al registrar la notificación.');
+    }
   };
 
   return (
@@ -61,7 +82,6 @@ function NotificationPanel() {
         <button className="logout-button">Cerrar Sesión</button>
       </div>
 
-      {/* Contenido principal */}
       <div className="main-content">
         <h2>Panel de Notificaciones</h2>
         <div className="notification-form">
@@ -115,3 +135,4 @@ function NotificationPanel() {
 }
 
 export default NotificationPanel;
+
