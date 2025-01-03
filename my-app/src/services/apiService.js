@@ -41,19 +41,29 @@ export const deleteCostoAdicional = (id) => handleRequest(() => api.delete(`/api
 export const getAllCostosAdicionales = () => handleRequest(() => api.get('/api/CostoAdicional'));
 export const createCostoAdicional = (data) => handleRequest(() => api.post('/api/CostoAdicional', data));
 
-// OrdenServicio Services
-export const getOrdenServicioById = (id) => handleRequest(() => api.get(`/api/OrdenServicio/${id}`));
-export const updateOrdenServicio = (id, data) => handleRequest(() => api.put(`/api/OrdenServicio/${id}`, data));
-export const deleteOrdenServicio = (id) => handleRequest(() => api.delete(`/api/OrdenServicio/${id}`));
-export const getAllOrdenesServicio = () => handleRequest(() => api.get('/api/OrdenServicio'));
-export const createOrdenServicio = (data) => handleRequest(() => api.post('/api/OrdenServicio', data));
+// Departamento Services
+export const getAllDepartamentos = () => handleRequest(() => api.get('/api/Departamento'));
+export const createDepartamento = (data) => handleRequest(() => api.post('/api/Departamento', data));
+export const updateDepartamento = (id, data) => handleRequest(() => api.put(`/api/Departamento/${id}`, data));
+export const deleteDepartamento = (id) => handleRequest(() => api.delete(`/api/Departamento/${id}`));
+
+// Notificaciones Services
+export const registerToken = (data) => handleRequest(() => api.post('/notificaciones/register', data));
+export const sendNotification = (data) => handleRequest(() => api.post('/notificaciones/enviar', data));
+export const sendNotificationToAll = (data) => handleRequest(() => api.post('/notificaciones/enviar-todos', data));
+export const deleteToken = (data) => handleRequest(() => api.delete('/notificaciones/token', { data }));
+export const getTokensByUsuarioId = (usuarioId) => handleRequest(() => api.get(`/notificaciones/tokens/${usuarioId}`));
+
+// OrdenDeServicio Services
+export const getOrdenServicioById = (id) => handleRequest(() => api.get(`/api/OrdenDeServicio/${id}`));
+export const updateOrdenServicio = (id, data) => handleRequest(() => api.put(`/api/OrdenDeServicio/${id}`, data));
+export const deleteOrdenServicio = (id) => handleRequest(() => api.delete(`/api/OrdenDeServicio/${id}`));
+export const createOrdenServicio = (data) => handleRequest(() => api.post('/api/OrdenDeServicio', data));
 
 // Poliza Services
-export const getPolizaById = (id) => handleRequest(() => api.get(`/api/Poliza/${id}`));
-export const updatePoliza = (id, data) => handleRequest(() => api.put(`/api/Poliza/${id}`, data));
-export const deletePoliza = (id) => handleRequest(() => api.delete(`/api/Poliza/${id}`));
-export const getAllPolizas = () => handleRequest(() => api.get('/api/Poliza'));
-export const createPoliza = (data) => handleRequest(() => api.post('/api/Poliza', data));
+export const createPoliza = (data) => handleRequest(() => api.post('/polizas', data));
+export const updatePoliza = (id, data) => handleRequest(() => api.put(`/polizas/${id}`, data));
+export const deletePoliza = (id) => handleRequest(() => api.delete(`/polizas/${id}`));
 
 // Proveedor Services
 export const getProveedorById = (id) => handleRequest(() => api.get(`/api/Proveedor/${id}`));
