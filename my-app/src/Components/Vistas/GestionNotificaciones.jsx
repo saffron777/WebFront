@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './sidebar.css'; // Estilos generales
-import loginImage from '../Assets/icon-image.png';
-import { FaUser, FaBuilding, FaCar, FaClipboardList, FaTruck, FaBell } from 'react-icons/fa';
+import Sidebar from '../sidebar.jsx';
 import { db } from '../../firebaseconfig.js';
 import { collection, addDoc } from 'firebase/firestore'; // Importa Firestore
 
@@ -43,44 +42,9 @@ function NotificationPanel() {
 
   return (
     <div className="container">
-      <div className="sidebar">
-        <div className="logo">
-          <img src={loginImage} alt="Logo" className="sidebar-logo" />
-        </div>
-        <ul className="nav-items">
-          <li>
-            <a href="#">
-              <FaUser className="nav-icon" /> Usuarios
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaBuilding className="nav-icon" /> Departamentos
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaCar className="nav-icon" /> Vehículos
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaClipboardList className="nav-icon" /> Órdenes
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaTruck className="nav-icon" /> Proveedores
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaBell className="nav-icon" /> Notificaciones
-            </a>
-          </li>
-        </ul>
-        <button className="logout-button">Cerrar Sesión</button>
-      </div>
+      <Sidebar /> {/* Usando el componente Sidebar */}
+      <div className="">
+
 
       <div className="main-content">
         <h2>Panel de Notificaciones</h2>
@@ -130,6 +94,7 @@ function NotificationPanel() {
           </button>
         </div>
       </div>
+    </div>
     </div>
   );
 }

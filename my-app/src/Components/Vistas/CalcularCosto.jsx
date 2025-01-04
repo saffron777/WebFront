@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { GoogleMap, LoadScript, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
-import { FaUser, FaBuilding, FaCar, FaClipboardList, FaTruck, FaBell } from 'react-icons/fa';
-import loginImage from '../Assets/icon-image.png';
+import Sidebar from '../sidebar';
 import './sidebar.css'; // Estilos generales
 
 // Componente principal
@@ -34,47 +33,11 @@ const CalcularCosto = () => {
   };
 
   return (
-    <div className="container">
-      {/* Sidebar */}
-      <div className="sidebar">
-        <div className="logo">
-          <img src={loginImage} alt="Logo" className="sidebar-logo" />
-        </div>
+   
+<div className="container">
+      <Sidebar /> {/* Usando el componente Sidebar */}
+      <div className="main-content">
 
-        <ul className="nav-items">
-          <li>
-            <a href="#">
-              <FaUser className="nav-icon" /> Usuarios
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaBuilding className="nav-icon" /> Departamentos
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaCar className="nav-icon" /> Vehículos
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaClipboardList className="nav-icon" /> Órdenes
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaTruck className="nav-icon" /> Proveedores
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaBell className="nav-icon" /> Notificaciones
-            </a>
-          </li>
-        </ul>
-        <button className="logout-button">Cerrar Sesión</button>
-      </div>
 
       {/* Mapa y formulario */}
       <div className="map-container">
@@ -109,6 +72,7 @@ const CalcularCosto = () => {
           </GoogleMap>
         </LoadScript>
       </div>
+    </div>
     </div>
   );
 };

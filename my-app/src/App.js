@@ -1,8 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import NotificationPanel from './Components/LoginFormulario/GestionNotificaciones';
+import CalcularCosto from './Components/Vistas/CalcularCosto';
 
 
 
@@ -11,7 +10,7 @@ import NotificationPanel from './Components/LoginFormulario/GestionNotificacione
 function App() {
   return (
     <div>
-     <NotificationPanel/>
+     <CalcularCosto/>
     </div>
     
   );

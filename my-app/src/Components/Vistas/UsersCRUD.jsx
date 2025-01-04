@@ -1,51 +1,16 @@
 import React from 'react';
 import './sidebar.css'; // Estilos 
-import loginImage from '../Assets/icon-image.png';
+import Sidebar from '../sidebar';
 
 // Importa íconos desde una librería como react-icons o material-icons
 import { FaUser, FaBuilding, FaCar, FaClipboardList, FaTruck, FaBell } from 'react-icons/fa';
 
-function Sidebar() {
+function UsersCRUD() {
   return (
-    <div className="container">
-      <div className="sidebar">
-        <div className="logo">
-          <img src={loginImage} alt="Logo" className="sidebar-logo" />
-        </div>
-        <ul className="nav-items">
-          <li>
-            <a href="#">
-              <FaUser className="nav-icon" /> Usuarios
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaBuilding className="nav-icon" /> Departamentos
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaCar className="nav-icon" /> Vehículos
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaClipboardList className="nav-icon" /> Órdenes
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaTruck className="nav-icon" /> Proveedores
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <FaBell className="nav-icon" /> Notificaciones
-            </a>
-          </li>
-        </ul>
-        <button className="logout-button">Cerrar Sesión</button>
-      </div>
+    
+<div className="container">
+      <Sidebar /> {/* Usando el componente Sidebar */}
+      <div className=""></div>
 
       {/* Tabla CRUD */}
       <div className="main-content">
@@ -115,4 +80,4 @@ function Sidebar() {
   );
 }
 
-export default Sidebar;
+export default UsersCRUD;
