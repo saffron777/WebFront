@@ -2,8 +2,6 @@ import React from 'react';
 import './sidebar.css'; // Estilos 
 import Sidebar from '../sidebar';
 
-// Importa íconos desde una librería como react-icons o material-icons
-import { FaUser, FaBuilding, FaCar, FaClipboardList, FaTruck, FaBell } from 'react-icons/fa';
 
 function UsersCRUD() {
   return (

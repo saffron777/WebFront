@@ -1,6 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import loginImage from './Assets/icon-image.png';
-import { FaUser, FaBuilding, FaCar, FaClipboardList, FaTruck, FaBell } from 'react-icons/fa';
+import { FaUser, FaBuilding, FaCar, FaClipboardList, FaTruck, FaBell, FaTag, FaMoneyBill } from 'react-icons/fa';
 
 const Sidebar = () => {
   return (
@@ -10,39 +11,44 @@ const Sidebar = () => {
       </div>
       <ul className="nav-items">
         <li>
-          <a href="#">
+          <Link to="/users">
             <FaUser className="nav-icon" /> Usuarios
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#">
+          <Link to="/departments">
             <FaBuilding className="nav-icon" /> Departamentos
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#">
+          <Link to="/vehicles">
             <FaCar className="nav-icon" /> Vehículos
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#">
+          <Link to="/orders">
             <FaClipboardList className="nav-icon" /> Órdenes
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#">
+          <Link to="/providers">
             <FaTruck className="nav-icon" /> Proveedores
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#">
+          <Link to="/notifications">
             <FaBell className="nav-icon" /> Notificaciones
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#">
-            <FaBell className="nav-icon" /> Tarifas
-          </a>
+          <Link to="/rates">
+            <FaTag className="nav-icon" /> Tarifas
+          </Link>
+        </li>
+        <li>
+          <Link to="/additional-costs">
+            <FaMoneyBill className="nav-icon" /> Costos Adicionales
+          </Link>
         </li>
       </ul>
       <button className="logout-button">Cerrar Sesión</button>
@@ -51,3 +57,4 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+
