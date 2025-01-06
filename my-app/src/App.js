@@ -7,6 +7,10 @@ import NotificationPanel from './Components/Vistas/GestionNotificaciones';
 import CreateServiceOrder from './Components/Vistas/CreateServiceOrder';
 import VisualizarProgreso from './Components/Vistas/VisualizarProgreso';
 import CalcularCosto from './Components/Vistas/CalcularCosto'; // Nueva interfaz
+import DepartamentCRUD from './Components/Vistas/DepartmentCRUD';
+import TarifaCRUD from './Components/Vistas/TarifaCRUD';
+import AsignarGruero from './Components/Vistas/AsignarGruero';
+
 
 function App() {
   return (
@@ -21,6 +25,9 @@ function App() {
             <Route path="/create-order" element={<CreateServiceOrder />} />
             <Route path="/order-status" element={<VisualizarProgreso />} />
             <Route path="/calculate-cost" element={<CalcularCosto />} /> {/* Nueva ruta */}
+            <Route path="/departments" element={<DepartamentCRUD />} /> {/* Nueva ruta */}
+            <Route path="/tarifa" element={<AsignarGruero />} /> {/* Nueva ruta */}
+
           </Routes>
         </div>
       </div>

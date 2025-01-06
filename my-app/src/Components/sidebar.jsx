@@ -41,7 +41,7 @@ const Sidebar = () => {
           </Link>
         </li>
         <li>
-          <Link to="/rates">
+          <Link to="/tarifa">
             <FaTag className="nav-icon" /> Tarifas
           </Link>
         </li>
@@ -51,7 +51,9 @@ const Sidebar = () => {
           </Link>
         </li>
       </ul>
+      
       <button className="logout-button">Cerrar Sesión</button>
+      
     </div>
   );
 };
