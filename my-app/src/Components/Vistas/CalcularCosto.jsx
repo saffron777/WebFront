@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GoogleMap, LoadScript, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 import Sidebar from '../sidebar';
+import Header from '../header';
 import './sidebar.css'; // Estilos generales
 
 // Componente principal
@@ -36,6 +37,7 @@ const CalcularCosto = () => {
    
 <div className="container">
       <Sidebar /> {/* Usando el componente Sidebar */}
+      <Header /> {/* Usando el componente Header para Avatar y notificaciones */}
       <div className="main-content">
 
 

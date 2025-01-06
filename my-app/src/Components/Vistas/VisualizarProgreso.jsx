@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './sidebar.css'; // Estilos del sidebar
+import Header from '../header';
 import Sidebar from '../sidebar'; 
 
 function ViewProgress() {
@@ -39,6 +40,8 @@ function ViewProgress() {
    
     <div className="container">
           <Sidebar /> {/* Usando el componente Sidebar */}
+          <Header /> {/* Usando el componente Header para Avatar y notificaciones */}import Header from '../header';
+
           <div className=""></div>
 
       <div className="main-content">
