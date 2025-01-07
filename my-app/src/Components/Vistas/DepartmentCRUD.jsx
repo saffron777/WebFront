@@ -1,15 +1,29 @@
-import React, { useState } from 'react';
-import './sidebar.css'; // Estilos 
+import React, { useState, useEffect } from 'react';
+import './sidebar.css'; // Estilos
 import Sidebar from '../sidebar';
 import Header from '../header';
-
 
 function DepartamentCRUD() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false); // Controla la visibilidad del formulario
   const [formData, setFormData] = useState({ id: '', nombre: '', ubicacion: '' }); // Datos del formulario
   const [isEditing, setIsEditing] = useState(false); // Define si es edición o creación
+  const [departamentos, setDepartamentos] = useState([]); // Lista de departamentos
 
-  const handleOpenPopover = (data = { id: '', nombre: '', ubicacion: '' }, editing = false) => {
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+  // Fetch inicial para cargar los departamentos desde el backend
+  useEffect(() => {
+    fetchDepartamentos();
+  }, []);
+
+  const fetchDepartamentos = () => {
+    fetch(`${API_BASE_URL}/departamento`)
+      .then((response) => response.json())
+      .then((data) => setDepartamentos(data))
+      .catch((error) => console.error('Error al cargar departamentos:', error));
+  };
+
+  const handleOpenPopover = (data = { id: '', nombre: '', descripcion: '' }, editing = false) => {
     setFormData(data);
     setIsEditing(editing);
     setIsPopoverOpen(true);
@@ -17,7 +31,7 @@ function DepartamentCRUD() {
 
   const handleClosePopover = () => {
     setIsPopoverOpen(false);
-    setFormData({ id: '', nombre: '', ubicacion: '' });
+    setFormData({ id: '', nombre: '', descripcion: '' });
     setIsEditing(false);
   };
 
@@ -28,56 +42,83 @@ function DepartamentCRUD() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isEditing) {
-      console.log('Editando departamento:', formData);
-    } else {
-      console.log('Creando departamento:', formData);
-    }
+    const method = isEditing ? 'PUT' : 'POST';
+    const url = isEditing
+      ? `${API_BASE_URL}/departamento/${formData.id}`
+      : `${API_BASE_URL}/departamento`;
+
+    fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Error al enviar datos');
+        return response.json();
+      })
+      .then(() => fetchDepartamentos()) // Actualizar lista de departamentos
+      .catch((error) => console.error('Error en la operación:', error));
+
     handleClosePopover();
+  };
+
+  const handleDelete = (id) => {
+    fetch(`${API_BASE_URL}/departamento/${id}`, {
+      method: 'DELETE',
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Error al eliminar departamento');
+        setDepartamentos(departamentos.filter((dep) => dep.id !== id)); // Actualizar la lista localmente
+      })
+      .catch((error) => console.error('Error al eliminar:', error));
   };
 
   return (
     <div className="container">
       <Sidebar /> {/* Usando el componente Sidebar */}
-      <Header /> {/* Usando el componente Sidebar */}
+      <Header /> {/* Usando el componente Header */}
       <div className="main-content">
-        
-        <h2>Departamento</h2>
+        <h2>Departamentos</h2>
 
         {/* Botón Agregar Departamento */}
         <div className="add-user-btn-container">
-          <button
-            className="add-user-btn"
-            onClick={() => handleOpenPopover()}
-          >
+          <button className="add-user-btn" onClick={() => handleOpenPopover()}>
             Agregar Departamento
           </button>
         </div>
 
+        {/* Tabla dinámica de departamentos */}
         <table className="crud-table">
           <thead>
             <tr>
               <th>ID</th>
               <th>Nombre</th>
-              <th>Ubicación</th>
+              <th>Descripcion</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>1</td>
-              <td>Gerencia</td>
-              <td>Oficina Central</td>
-              <td>
-                <button
-                  className="edit-btn"
-                  onClick={() => handleOpenPopover({ id: '1', nombre: 'Gerencia', ubicacion: 'Oficina Central' }, true)}
-                >
-                  Editar
-                </button>
-                <button className="delete-btn">Eliminar</button>
-              </td>
-            </tr>
+            {departamentos.map((departamento) => (
+              <tr key={departamento.id}>
+                <td>{departamento.id}</td>
+                <td>{departamento.nombre}</td>
+                <td>{departamento.descripcion}</td>
+                <td>
+                  <button
+                    className="edit-btn"
+                    onClick={() => handleOpenPopover(departamento, true)}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDelete(departamento.id)}
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -101,13 +142,13 @@ function DepartamentCRUD() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="ubicacion">Ubicación</label>
+                <label htmlFor="ubicacion">Descripcion</label>
                 <input
                   type="text"
-                  id="ubicacion"
-                  name="ubicacion"
+                  id="descripcion"
+                  name="descripcion"
                   className="form-input"
-                  value={formData.ubicacion}
+                  value={formData.descripcion}
                   onChange={handleFormChange}
                   required
                 />
