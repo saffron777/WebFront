@@ -9,8 +9,8 @@ import CreateServiceOrder from './Components/Vistas/CreateServiceOrder';
 import VisualizarProgreso from './Components/Vistas/VisualizarProgreso';
 import CalcularCosto from './Components/Vistas/CalcularCosto'; // Nueva interfaz
 import DepartamentCRUD from './Components/Vistas/DepartmentCRUD';
-import AsignarGruero from './Components/Vistas/AsignarGruero';
 import VehicleCRUD from './Components/Vistas/VehicleCRUD';
+import TarifaCRUD from './Components/Vistas/TarifaCRUD';
 
 
 function App() {
@@ -28,7 +28,8 @@ function App() {
             <Route path="/order-status" element={<VisualizarProgreso />} />
             <Route path="/calculate-cost" element={<CalcularCosto />} /> {/* Nueva ruta */}
             <Route path="/departments" element={<DepartamentCRUD />} /> {/* Nueva ruta */}
-            <Route path="/tarifa" element={<AsignarGruero />} /> {/* Nueva ruta */}
+            <Route path="/tarifa" element={<TarifaCRUD />} /> {/* Nueva ruta */}
+         
 
           </Routes>
         </div>
