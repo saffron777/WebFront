@@ -1,6 +1,7 @@
 import React from 'react';
 import './sidebar.css'; // Estilos generales
 import Sidebar from '../sidebar'
+import Header from '../header';
 import grueroPhoto from '../Assets/gruero-photo.png'; // Imagen de ejemplo para los gruero
 
 import { FaUser, FaBuilding, FaCar, FaClipboardList, FaTruck, FaBell } from 'react-icons/fa';
@@ -10,6 +11,7 @@ function AsignarGruero() {
    
 <div className="container">
       <Sidebar /> {/* Usando el componente Sidebar */}
+      <Header /> {/* Usando el componente Header para Avatar y notificaciones */}
       <div className="">
 
 

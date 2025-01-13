@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './sidebar.css'; // Estilos
+import Header from '../header';
 import Sidebar from '../sidebar';
 
 function ServiceOrder() {
@@ -17,6 +18,7 @@ function ServiceOrder() {
   return (
     <div className="container">
       <Sidebar /> {/* Usando el componente Sidebar */}
+      <Header /> {/* Usando el componente Header para Avatar y notificaciones */}
       <div className="">
         {/* Contenido principal */}
         <div className="main-content">

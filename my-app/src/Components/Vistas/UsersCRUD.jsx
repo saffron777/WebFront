@@ -1,5 +1,6 @@
 import React from 'react';
 import './sidebar.css'; // Estilos 
+import Header from '../header';
 import Sidebar from '../sidebar';
 
 
@@ -8,6 +9,7 @@ function UsersCRUD() {
     
 <div className="container">
       <Sidebar /> {/* Usando el componente Sidebar */}
+      <Header /> {/* Usando el componente Header para Avatar y notificaciones */}
       <div className=""></div>
 
       {/* Tabla CRUD */}

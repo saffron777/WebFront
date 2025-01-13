@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './sidebar.css'; // Estilos generales
 import Sidebar from '../sidebar.jsx';
+import Header from '../header';
 import { db } from '../../firebaseconfig.js';
 import { collection, addDoc } from 'firebase/firestore'; // Importa Firestore
 
@@ -43,6 +44,7 @@ function NotificationPanel() {
   return (
     <div className="container">
       <Sidebar /> {/* Usando el componente Sidebar */}
+      <Header /> {/* Usando el componente Header para Avatar y notificaciones */}
       <div className="">
 
 

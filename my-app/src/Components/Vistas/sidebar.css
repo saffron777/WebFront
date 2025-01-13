@@ -16,6 +16,7 @@
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 1100;
 }
 
 .sidebar .logo {
@@ -510,6 +511,50 @@ body {
 
 .send-button:hover {
   background-color: #45a049;
+}
+.popover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popover-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background-color: #ff7700;
+  padding: 10px 20px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.notification-icon {
+  margin-right: 20px;
+}
+
+.avatar-container {
+  margin-right: 10px;
+}
+
+.notification-icon:hover, 
+.avatar-container:hover {
+  opacity: 0.8;
 }
 
 
