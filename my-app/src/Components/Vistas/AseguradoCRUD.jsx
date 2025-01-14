@@ -1,30 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import toast, { Toaster } from 'react-hot-toast'; // Importa React Hot Toast
-import './sidebar.css';
+import toast, { Toaster } from 'react-hot-toast';
+import './sidebar.css'; // Estilos
 import Sidebar from '../sidebar';
 import Header from '../header';
 
-function DepartamentCRUD() {
+function AseguradoCRUD() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false); // Controla la visibilidad del formulario
-  const [formData, setFormData] = useState({ id: '', nombre: '', descripcion: '' }); // Datos del formulario
+  const [formData, setFormData] = useState({
+    id: '',
+    nombre: '',
+    apellido: '',
+    documentoIdentidad: '',
+    telefono: '',
+    polizaId: '',
+  }); // Datos del formulario
   const [isEditing, setIsEditing] = useState(false); // Define si es edición o creación
-  const [departamentos, setDepartamentos] = useState([]); // Lista de departamentos
+  const [asegurados, setAsegurados] = useState([]); // Lista de asegurados
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-  // Fetch inicial para cargar los departamentos desde el backend
   useEffect(() => {
-    fetchDepartamentos();
+    fetchAsegurados();
   }, []);
 
-  const fetchDepartamentos = () => {
-    fetch(`${API_BASE_URL}/departamento`)
+  const fetchAsegurados = () => {
+    fetch(`${API_BASE_URL}/asegurado`)
       .then((response) => response.json())
-      .then((data) => setDepartamentos(data))
-      .catch((error) => console.error('Error al cargar departamentos:', error));
+      .then((data) => setAsegurados(data))
+      .catch((error) => console.error('Error al cargar asegurados:', error));
   };
 
-  const handleOpenPopover = (data = { id: '', nombre: '', descripcion: '' }, editing = false) => {
+  const handleOpenPopover = (
+    data = { id: '', nombre: '', apellido: '', documentoIdentidad: '', telefono: '', polizaId: '' },
+    editing = false
+  ) => {
     setFormData(data);
     setIsEditing(editing);
     setIsPopoverOpen(true);
@@ -32,7 +41,7 @@ function DepartamentCRUD() {
 
   const handleClosePopover = () => {
     setIsPopoverOpen(false);
-    setFormData({ id: '', nombre: '', descripcion: '' });
+    setFormData({ id: '', nombre: '', apellido: '', documentoIdentidad: '', telefono: '', polizaId: '' });
     setIsEditing(false);
   };
 
@@ -45,8 +54,8 @@ function DepartamentCRUD() {
     e.preventDefault();
     const method = isEditing ? 'PUT' : 'POST';
     const url = isEditing
-      ? `${API_BASE_URL}/departamento/${formData.id}`
-      : `${API_BASE_URL}/departamento`;
+      ? `${API_BASE_URL}/asegurado/${formData.id}`
+      : `${API_BASE_URL}/asegurado`;
 
     fetch(url, {
       method,
@@ -58,11 +67,11 @@ function DepartamentCRUD() {
         return response.json();
       })
       .then(() => {
-        fetchDepartamentos(); // Actualizar lista de departamentos
+        fetchAsegurados();
         toast.success(
           isEditing
-            ? 'Departamento editado exitosamente'
-            : 'Departamento creado exitosamente'
+            ? 'Asegurado editado exitosamente'
+            : 'Asegurado creado exitosamente'
         );
       })
       .catch((error) => {
@@ -74,61 +83,67 @@ function DepartamentCRUD() {
   };
 
   const handleDelete = (id) => {
-    fetch(`${API_BASE_URL}/departamento/${id}`, {
+    fetch(`${API_BASE_URL}/asegurado/${id}`, {
       method: 'DELETE',
     })
       .then((response) => {
-        if (!response.ok) throw new Error('Error al eliminar departamento');
-        setDepartamentos(departamentos.filter((dep) => dep.id !== id)); // Actualizar la lista localmente
-        toast.success('Departamento eliminado exitosamente');
+        if (!response.ok) throw new Error('Error al eliminar asegurado');
+        setAsegurados(asegurados.filter((asegurado) => asegurado.id !== id));
+        toast.success('Asegurado eliminado exitosamente');
       })
       .catch((error) => {
         console.error('Error al eliminar:', error);
-        toast.error('Ocurrió un error al eliminar el departamento');
+        toast.error('Ocurrió un error al eliminar el asegurado');
       });
   };
 
   return (
     <div className="container">
       <Sidebar /> {/* Usando el componente Sidebar */}
-      <Header /> {/* Usando el componente Header */}
+      <Header /> {/* Usando el componente Header para Avatar y notificaciones */}
       <Toaster position="top-right" reverseOrder={false} /> {/* Componente Toaster */}
       <div className="main-content">
-        <h2>Departamentos</h2>
+        <h2>Asegurados</h2>
 
-        {/* Botón Agregar Departamento */}
+        {/* Botón Agregar Asegurado */}
         <div className="add-user-btn-container">
           <button className="add-user-btn" onClick={() => handleOpenPopover()}>
-            Agregar Departamento
+            Agregar Asegurado
           </button>
         </div>
 
-        {/* Tabla dinámica de departamentos */}
+        {/* Tabla dinámica de asegurados */}
         <table className="crud-table">
           <thead>
             <tr>
               <th>ID</th>
               <th>Nombre</th>
-              <th>Descripcion</th>
+              <th>Apellido</th>
+              <th>Documento de Identidad</th>
+              <th>Teléfono</th>
+              <th>Póliza ID</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {departamentos.map((departamento) => (
-              <tr key={departamento.id}>
-                <td>{departamento.id}</td>
-                <td>{departamento.nombre}</td>
-                <td>{departamento.descripcion}</td>
+            {asegurados.map((asegurado) => (
+              <tr key={asegurado.id}>
+                <td>{asegurado.id}</td>
+                <td>{asegurado.nombre}</td>
+                <td>{asegurado.apellido}</td>
+                <td>{asegurado.documentoIdentidad}</td>
+                <td>{asegurado.telefono}</td>
+                <td>{asegurado.polizaId}</td>
                 <td>
                   <button
                     className="edit-btn"
-                    onClick={() => handleOpenPopover(departamento, true)}
+                    onClick={() => handleOpenPopover(asegurado, true)}
                   >
                     Editar
                   </button>
                   <button
                     className="delete-btn"
-                    onClick={() => handleDelete(departamento.id)}
+                    onClick={() => handleDelete(asegurado.id)}
                   >
                     Eliminar
                   </button>
@@ -142,7 +157,7 @@ function DepartamentCRUD() {
       {isPopoverOpen && (
         <div className="popover">
           <div className="popover-content">
-            <h3 className="popover-title">{isEditing ? 'Editar Departamento' : 'Crear Departamento'}</h3>
+            <h3 className="popover-title">{isEditing ? 'Editar Asegurado' : 'Crear Asegurado'}</h3>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="nombre">Nombre</label>
@@ -158,13 +173,52 @@ function DepartamentCRUD() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="ubicacion">Descripcion</label>
+                <label htmlFor="apellido">Apellido</label>
                 <input
                   type="text"
-                  id="descripcion"
-                  name="descripcion"
+                  id="apellido"
+                  name="apellido"
                   className="form-input"
-                  value={formData.descripcion}
+                  value={formData.apellido}
+                  onChange={handleFormChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="documentoIdentidad">Documento de Identidad</label>
+                <input
+                  type="text"
+                  id="documentoIdentidad"
+                  name="documentoIdentidad"
+                  className="form-input"
+                  value={formData.documentoIdentidad}
+                  onChange={handleFormChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="telefono">Teléfono</label>
+                <input
+                  type="text"
+                  id="telefono"
+                  name="telefono"
+                  className="form-input"
+                  value={formData.telefono}
+                  onChange={handleFormChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="polizaId">Póliza ID</label>
+                <input
+                  type="text"
+                  id="polizaId"
+                  name="polizaId"
+                  className="form-input"
+                  value={formData.polizaId}
                   onChange={handleFormChange}
                   required
                 />
@@ -186,4 +240,4 @@ function DepartamentCRUD() {
   );
 }
 
-export default DepartamentCRUD;
+export default AseguradoCRUD;

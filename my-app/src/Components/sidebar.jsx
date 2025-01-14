@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import loginImage from './Assets/icon-image.png';
-import { FaUser, FaBuilding, FaCar, FaClipboardList, FaTruck, FaBell, FaTag, FaMoneyBill } from 'react-icons/fa';
+import { FaUser, FaBuilding, FaCar, FaClipboardList, FaTruck, FaBell, FaTag, FaMoneyBill, FaFileContract, FaUserShield, FaIdCard } from 'react-icons/fa';
 
 const Sidebar = () => {
   return (
@@ -31,7 +31,7 @@ const Sidebar = () => {
           </Link>
         </li>
         <li>
-          <Link to="/providers">
+          <Link to="/proveedor">
             <FaTruck className="nav-icon" /> Proveedores
           </Link>
         </li>
@@ -46,8 +46,18 @@ const Sidebar = () => {
           </Link>
         </li>
         <li>
-          <Link to="/additional-costs">
+          <Link to="/asegurado">
+            <FaIdCard className="nav-icon" /> Asegurado
+          </Link>
+        </li>
+        <li>
+          <Link to="/costosextra">
             <FaMoneyBill className="nav-icon" /> Costos Adicionales
+          </Link>
+        </li>
+        <li>
+          <Link to="/poliza">
+            <FaFileContract className="nav-icon" /> Poliza
           </Link>
         </li>
       </ul>

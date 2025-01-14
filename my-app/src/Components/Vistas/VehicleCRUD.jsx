@@ -6,7 +6,7 @@ import Sidebar from '../sidebar';
 function VehicleCRUD() {
   const [vehiculos, setVehiculos] = useState([]);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [formData, setFormData] = useState({ id: '', marca: '', modelo: '', placa: '', capacidad: '' });
+  const [formData, setFormData] = useState({ id: '', marca: '', modelo: '', placa: '', capacidad: '', proveedorId: '' });
   const [isEditing, setIsEditing] = useState(false);
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -22,7 +22,7 @@ function VehicleCRUD() {
   }, []);
 
   // Abrir el popover para crear o editar vehículo
-  const handleOpenPopover = (data = { id: '', marca: '', modelo: '', placa: '', capacidad: '' }, editing = false) => {
+  const handleOpenPopover = (data = { id: '', marca: '', modelo: '', placa: '', capacidad: '', proveedorId: '' }, editing = false) => {
     setFormData(data);
     setIsEditing(editing);
     setIsPopoverOpen(true);
@@ -31,7 +31,7 @@ function VehicleCRUD() {
   // Cerrar el popover
   const handleClosePopover = () => {
     setIsPopoverOpen(false);
-    setFormData({ id: '', marca: '', modelo: '', placa: '', capacidad: '' });
+    setFormData({ id: '', marca: '', modelo: '', placa: '', capacidad: '', proveedorId: '' });
     setIsEditing(false);
   };
 
@@ -58,13 +58,18 @@ function VehicleCRUD() {
         if (!response.ok) throw new Error('Error al enviar datos');
         return response.json();
       })
-      .then(() => {
-        fetch(`${API_BASE_URL}/vehiculo`)
-          .then((response) => response.json())
-          .then((data) => {
-            console.log('Vehículos actualizados:', data);
-            setVehiculos(data);
-          });
+      .then((newVehiculo) => {
+        if (isEditing) {
+          // Actualizar el vehículo editado en el estado
+          setVehiculos((prevVehiculos) =>
+            prevVehiculos.map((vehiculo) =>
+              vehiculo.id === newVehiculo.id ? newVehiculo : vehiculo
+            )
+          );
+        } else {
+          // Agregar el nuevo vehículo al estado
+          setVehiculos((prevVehiculos) => [...prevVehiculos, newVehiculo]);
+        }
       })
       .catch((error) => console.error('Error al procesar la operación:', error));
 
@@ -103,6 +108,7 @@ function VehicleCRUD() {
               <th>Modelo</th>
               <th>Placa</th>
               <th>Capacidad</th>
+              <th>Proveedor</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -114,6 +120,7 @@ function VehicleCRUD() {
                 <td>{vehiculo.modelo}</td>
                 <td>{vehiculo.placa}</td>
                 <td>{vehiculo.capacidad}</td>
+                <td>{vehiculo.proveedorId}</td>
                 <td>
                   <button className="edit-btn" onClick={() => handleOpenPopover(vehiculo, true)}>
                     Editar
@@ -185,6 +192,19 @@ function VehicleCRUD() {
                 />
               </div>
 
+              <div className="form-group">
+                <label htmlFor="proveedorId">Proveedor ID</label>
+                <input
+                  type="text"
+                  id="proveedorId"
+                  name="proveedorId"
+                  className="form-input"
+                  value={formData.proveedorId}
+                  onChange={handleFormChange}
+                  required
+                />
+              </div>
+
               <div className="form-actions">
                 <button type="submit" className="submit-btn">
                   {isEditing ? 'Guardar Cambios' : 'Crear'}
@@ -202,4 +222,3 @@ function VehicleCRUD() {
 }
 
 export default VehicleCRUD;
-
