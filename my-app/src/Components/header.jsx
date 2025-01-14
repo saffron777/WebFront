@@ -5,10 +5,19 @@ import { Dropdown, Menu, Avatar, Badge } from 'antd';
 function Header() {
   const [notificationCount, setNotificationCount] = useState(3);
 
+  // URL de Keycloak para cambiar la contraseña
+  const keycloakUrl = 'http://localhost:8080/realms/GruasUcab/account'; // URL actualizada con tu configuración
+
+  // Función que maneja la redirección a la interfaz de Keycloak
+  const handleChangePassword = () => {
+    window.location.href = keycloakUrl; // Redirige a Keycloak para cambiar la contraseña
+  };
+
   const menu = (
     <Menu>
       <Menu.Item key="1">
-        <a href="/change-password">Cambiar Contraseña</a>
+        {/* Llamada a la función para cambiar la contraseña */}
+        <a onClick={handleChangePassword}>Cambiar Contraseña</a>
       </Menu.Item>
       <Menu.Item key="2">
         <a href="/logout">Cerrar Sesión</a>
@@ -17,7 +26,7 @@ function Header() {
   );
 
   const handleNotificationClick = () => {
-    // Aquí puedes manejar la lógica de notificaciones
+    // Lógica para manejar las notificaciones (si la tienes)
     console.log('Ver notificaciones');
   };
 
