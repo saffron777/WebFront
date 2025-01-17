@@ -1,83 +1,50 @@
 import React from 'react';
-import './sidebar.css'; // Estilos 
+import { useNavigate } from 'react-router-dom';
+import './sidebar.css'; // Estilos
 import Header from '../header';
 import Sidebar from '../sidebar';
 
+function ServiceOrder() {
+  const navigate = useNavigate();
 
-function UsersCRUD() {
+  const handleCrearConductor = () => {
+    navigate('/conductor'); 
+  };
+
+  const handleCrearOperador = () => {
+    navigate('/operador'); // Navegar a la ruta de estatus de órdenes
+  };
+
   return (
-    
-<div className="container">
+    <div className="container">
       <Sidebar /> {/* Usando el componente Sidebar */}
       <Header /> {/* Usando el componente Header para Avatar y notificaciones */}
-      <div className=""></div>
+      <div className="">
+        {/* Contenido principal */}
+        <div className="main-content">
+          <h2>Gestión de Usuarios</h2>
 
-      {/* Tabla CRUD */}
-      <div className="main-content">
-        <h2>Usuarios</h2>
-        
-        {/* Botón Agregar Usuario */}
-        <div className="add-user-btn-container">
-          <button className="add-user-btn">Agregar Usuario</button>
+          {/* Botones grandes */}
+          <div className="button-grid">
+            <button className="large-button" onClick={handleCrearOperador}>
+              <div className="button-icon">👩🏻‍💻</div>
+              <div className="button-title">Gestionar Operador</div>
+            </button>
+
+            <button className="large-button" onClick={handleCrearConductor}>
+              <div className="button-icon">👷🏻‍♂️</div>
+              <div className="button-title">Gestionar Conductor</div>
+            </button>
+
+            <button className="large-button">
+              <div className="button-icon">👤</div>
+              <div className="button-title">Gestionar Proveedor</div>
+            </button>
+          </div>
         </div>
-        
-
-        <table className="crud-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th>Rol</th> {/* Columna de Rol agregada */}
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>Juan Pérez</td>
-              <td>juan@example.com</td>
-              <td>Administrador</td> {/* Ejemplo de rol */}
-              <td>
-                <button>Editar</button>
-                <button>Eliminar</button>
-              </td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Ana Gómez</td>
-              <td>ana@example.com</td>
-              <td>Usuario</td> {/* Ejemplo de rol */}
-              <td>
-                <button>Editar</button>
-                <button>Eliminar</button>
-              </td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td>Carlos López</td>
-              <td>carlos@example.com</td>
-              <td>Proveedor</td> {/* Ejemplo de rol */}
-              <td>
-                <button>Editar</button>
-                <button>Eliminar</button>
-              </td>
-            </tr>
-            <tr>
-              <td>4</td>
-              <td>María García</td>
-              <td>maria@example.com</td>
-              <td>Usuario</td> {/* Ejemplo de rol */}
-              <td>
-                <button>Editar</button>
-                <button>Eliminar</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
   );
 }
 
-export default UsersCRUD;
+export default ServiceOrder;

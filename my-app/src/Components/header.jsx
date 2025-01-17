@@ -1,32 +1,41 @@
+// Header.jsx
 import React, { useState } from 'react';
 import { BellOutlined, UserOutlined } from '@ant-design/icons';
 import { Dropdown, Menu, Avatar, Badge } from 'antd';
 
-function Header() {
+function Header({ keycloak }) {  // Recibe keycloak como prop
   const [notificationCount, setNotificationCount] = useState(3);
 
-  // URL de Keycloak para cambiar la contraseña
-  const keycloakUrl = 'http://localhost:8080/realms/GruasUcab/account'; // URL actualizada con tu configuración
+  const keycloakUrl = 'http://localhost:8080/realms/GruasUcab/account'; // URL para cambiar la contraseña
 
-  // Función que maneja la redirección a la interfaz de Keycloak
+  // Función para cambiar la contraseña
   const handleChangePassword = () => {
-    window.location.href = keycloakUrl; // Redirige a Keycloak para cambiar la contraseña
+    window.location.href = keycloakUrl;
   };
 
+  // Función para cerrar sesión
+  const handleLogout = () => {
+    if (keycloak && keycloak.logout) {
+      keycloak.logout({ redirectUri: 'http://localhost:3000' });  // Redirige al inicio después de cerrar sesión
+    } else {
+      console.error('Keycloak no está definido correctamente.');
+    }
+  };
+
+  // Menú con las opciones de cambiar contraseña y cerrar sesión
   const menu = (
     <Menu>
       <Menu.Item key="1">
-        {/* Llamada a la función para cambiar la contraseña */}
         <a onClick={handleChangePassword}>Cambiar Contraseña</a>
       </Menu.Item>
       <Menu.Item key="2">
-        <a href="/logout">Cerrar Sesión</a>
+        <a onClick={handleLogout}>Cerrar Sesión</a>
       </Menu.Item>
     </Menu>
   );
 
+  // Función para manejar las notificaciones
   const handleNotificationClick = () => {
-    // Lógica para manejar las notificaciones (si la tienes)
     console.log('Ver notificaciones');
   };
 

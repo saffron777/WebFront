@@ -66,7 +66,7 @@ const CalcularCosto = () => {
     <div className="container">
       <Sidebar /> {/* Sidebar */}
       <Header /> {/* Header */}
-      <div className="main-content">
+      <div className="">
         <div className="map-container">
           <h2>Calculadora de Ruta</h2>
 
@@ -107,7 +107,7 @@ const CalcularCosto = () => {
             {/* Mostrar el mapa */}
             <GoogleMap
               mapContainerStyle={{ width: '100%', height: '400px' }}
-              center={{ lat: 19.432608, lng: -99.133209 }} // Ciudad de México
+              center={{ lat: 19.432608, lng: -99.133209 }} 
               zoom={12}
             >
               {directionsResponse && <DirectionsRenderer directions={directionsResponse} />}

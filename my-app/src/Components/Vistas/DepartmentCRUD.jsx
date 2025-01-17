@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import toast, { Toaster } from 'react-hot-toast'; // Importa React Hot Toast
+import toast, { Toaster } from 'react-hot-toast';
+import { Pagination } from 'antd'; // Importar Pagination de Ant Design
 import './sidebar.css';
 import Sidebar from '../sidebar';
 import Header from '../header';
 
 function DepartamentCRUD() {
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false); // Controla la visibilidad del formulario
-  const [formData, setFormData] = useState({ id: '', nombre: '', descripcion: '' }); // Datos del formulario
-  const [isEditing, setIsEditing] = useState(false); // Define si es edición o creación
-  const [departamentos, setDepartamentos] = useState([]); // Lista de departamentos
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [formData, setFormData] = useState({ id: '', nombre: '', ubicacion: '' });
+  const [isEditing, setIsEditing] = useState(false);
+  const [departamentos, setDepartamentos] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1); // Página actual
+  const [pageSize] = useState(8); // Número de elementos por página
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-  // Fetch inicial para cargar los departamentos desde el backend
   useEffect(() => {
     fetchDepartamentos();
   }, []);
@@ -24,7 +26,7 @@ function DepartamentCRUD() {
       .catch((error) => console.error('Error al cargar departamentos:', error));
   };
 
-  const handleOpenPopover = (data = { id: '', nombre: '', descripcion: '' }, editing = false) => {
+  const handleOpenPopover = (data = { id: '', nombre: '', ubicacion: '' }, editing = false) => {
     setFormData(data);
     setIsEditing(editing);
     setIsPopoverOpen(true);
@@ -32,7 +34,7 @@ function DepartamentCRUD() {
 
   const handleClosePopover = () => {
     setIsPopoverOpen(false);
-    setFormData({ id: '', nombre: '', descripcion: '' });
+    setFormData({ id: '', nombre: '', ubicacion: '' });
     setIsEditing(false);
   };
 
@@ -44,9 +46,7 @@ function DepartamentCRUD() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const method = isEditing ? 'PUT' : 'POST';
-    const url = isEditing
-      ? `${API_BASE_URL}/departamento/${formData.id}`
-      : `${API_BASE_URL}/departamento`;
+    const url = `${API_BASE_URL}/departamento`;
 
     fetch(url, {
       method,
@@ -54,16 +54,12 @@ function DepartamentCRUD() {
       body: JSON.stringify(formData),
     })
       .then((response) => {
-        if (!response.ok) throw new Error('Error al enviar datos');
-        return response.json();
+        if (!response.ok) throw new Error('Error al enviar los datos');
+        if (response.status !== 204) return response.json();
       })
       .then(() => {
-        fetchDepartamentos(); // Actualizar lista de departamentos
-        toast.success(
-          isEditing
-            ? 'Departamento editado exitosamente'
-            : 'Departamento creado exitosamente'
-        );
+        fetchDepartamentos();
+        toast.success(isEditing ? 'Departamento editado exitosamente' : 'Departamento creado exitosamente');
       })
       .catch((error) => {
         console.error('Error en la operación:', error);
@@ -79,7 +75,7 @@ function DepartamentCRUD() {
     })
       .then((response) => {
         if (!response.ok) throw new Error('Error al eliminar departamento');
-        setDepartamentos(departamentos.filter((dep) => dep.id !== id)); // Actualizar la lista localmente
+        setDepartamentos(departamentos.filter((dep) => dep.id !== id));
         toast.success('Departamento eliminado exitosamente');
       })
       .catch((error) => {
@@ -88,48 +84,48 @@ function DepartamentCRUD() {
       });
   };
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page); // Cambia la página actual
+  };
+
+  // Calcular los datos de la página actual
+  const startIndex = (currentPage - 1) * pageSize;
+  const currentData = departamentos.slice(startIndex, startIndex + pageSize);
+
   return (
     <div className="container">
-      <Sidebar /> {/* Usando el componente Sidebar */}
-      <Header /> {/* Usando el componente Header */}
-      <Toaster position="top-right" reverseOrder={false} /> {/* Componente Toaster */}
+      <Sidebar />
+      <Header />
+      <Toaster position="top-right" reverseOrder={false} />
       <div className="main-content">
         <h2>Departamentos</h2>
 
-        {/* Botón Agregar Departamento */}
         <div className="add-user-btn-container">
           <button className="add-user-btn" onClick={() => handleOpenPopover()}>
             Agregar Departamento
           </button>
         </div>
 
-        {/* Tabla dinámica de departamentos */}
         <table className="crud-table">
           <thead>
             <tr>
               <th>ID</th>
               <th>Nombre</th>
-              <th>Descripcion</th>
+              <th>Ubicación</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {departamentos.map((departamento) => (
+            {currentData.map((departamento) => (
               <tr key={departamento.id}>
                 <td>{departamento.id}</td>
                 <td>{departamento.nombre}</td>
-                <td>{departamento.descripcion}</td>
+                <td>{departamento.ubicacion}</td>
                 <td>
-                  <button
-                    className="edit-btn"
-                    onClick={() => handleOpenPopover(departamento, true)}
-                  >
+                  <button className="edit-btn" onClick={() => handleOpenPopover(departamento, true)}>
                     Editar
                   </button>
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDelete(departamento.id)}
-                  >
+                  <button className="delete-btn" onClick={() => handleDelete(departamento.id)}>
                     Eliminar
                   </button>
                 </td>
@@ -137,6 +133,15 @@ function DepartamentCRUD() {
             ))}
           </tbody>
         </table>
+
+        {/* Componente de paginación */}
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={departamentos.length}
+          onChange={handlePageChange}
+          style={{ marginTop: '20px', textAlign: 'center' }}
+        />
       </div>
 
       {isPopoverOpen && (
@@ -144,6 +149,12 @@ function DepartamentCRUD() {
           <div className="popover-content">
             <h3 className="popover-title">{isEditing ? 'Editar Departamento' : 'Crear Departamento'}</h3>
             <form onSubmit={handleSubmit}>
+              {isEditing && (
+                <div className="form-group">
+                  <label htmlFor="id">ID</label>
+                  <input type="text" id="id" name="id" className="form-input" value={formData.id} readOnly />
+                </div>
+              )}
               <div className="form-group">
                 <label htmlFor="nombre">Nombre</label>
                 <input
@@ -158,13 +169,13 @@ function DepartamentCRUD() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="ubicacion">Descripcion</label>
+                <label htmlFor="ubicacion">Ubicación</label>
                 <input
                   type="text"
-                  id="descripcion"
-                  name="descripcion"
+                  id="ubicacion"
+                  name="ubicacion"
                   className="form-input"
-                  value={formData.descripcion}
+                  value={formData.ubicacion}
                   onChange={handleFormChange}
                   required
                 />
@@ -187,3 +198,4 @@ function DepartamentCRUD() {
 }
 
 export default DepartamentCRUD;
+
