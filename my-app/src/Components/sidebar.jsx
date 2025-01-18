@@ -93,6 +93,12 @@ const Sidebar = () => {
             <FaBell className="nav-icon" /> Notificaciones
           </Link>
         </li>
+        <li>
+              <Link to="/users">
+                <FaUser className="nav-icon" /> Usuarios
+              </Link>
+            </li>
+        
       </ul>
       
       <button className="logout-button">Cerrar Sesión</button>
