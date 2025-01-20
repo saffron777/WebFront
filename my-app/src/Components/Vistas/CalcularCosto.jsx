@@ -1,21 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleMap, DirectionsRenderer, Autocomplete, LoadScript } from '@react-google-maps/api';
 import Sidebar from '../sidebar';
 import Header from '../header';
-import './sidebar.css'; // Estilos generales
+import './sidebar.css';
 
 const CalcularCosto = () => {
-  const [origin, setOrigin] = useState(''); // Dirección de origen
-  const [destination, setDestination] = useState(''); // Dirección de destino
-  const [originAutocomplete, setOriginAutocomplete] = useState(null); // Autocompletado para origen
-  const [destinationAutocomplete, setDestinationAutocomplete] = useState(null); // Autocompletado para destino
-  const [directionsResponse, setDirectionsResponse] = useState(null); // Respuesta de las direcciones
-  const [distance, setDistance] = useState(null); // Distancia calculada
+  const [origin, setOrigin] = useState('');
+  const [destination, setDestination] = useState('');
+  const [originAutocomplete, setOriginAutocomplete] = useState(null);
+  const [destinationAutocomplete, setDestinationAutocomplete] = useState(null);
+  const [directionsResponse, setDirectionsResponse] = useState(null);
+  const [distance, setDistance] = useState(null);
+  const [routeDetails, setRouteDetails] = useState(null);
+  const [beneficiaryInfo, setBeneficiaryInfo] = useState(null);
+  const [selectedVehicle, setSelectedVehicle] = useState('');
 
-  // Configurar Autocomplete para origen
-  const onOriginLoad = (autocomplete) => {
-    setOriginAutocomplete(autocomplete);
-  };
+  useEffect(() => {
+    const savedBeneficiaryInfo = localStorage.getItem('beneficiaryInfo');
+    const savedVehicle = localStorage.getItem('selectedVehicle');
+
+    if (savedBeneficiaryInfo) {
+      setBeneficiaryInfo(JSON.parse(savedBeneficiaryInfo));
+    }
+
+    if (savedVehicle) {
+      setSelectedVehicle(savedVehicle); // Recuperar ID del vehículo seleccionado
+    }
+  }, []);
+
+  const onOriginLoad = (autocomplete) => setOriginAutocomplete(autocomplete);
 
   const onOriginPlaceChanged = () => {
     if (originAutocomplete) {
@@ -24,10 +37,7 @@ const CalcularCosto = () => {
     }
   };
 
-  // Configurar Autocomplete para destino
-  const onDestinationLoad = (autocomplete) => {
-    setDestinationAutocomplete(autocomplete);
-  };
+  const onDestinationLoad = (autocomplete) => setDestinationAutocomplete(autocomplete);
 
   const onDestinationPlaceChanged = () => {
     if (destinationAutocomplete) {
@@ -36,7 +46,6 @@ const CalcularCosto = () => {
     }
   };
 
-  // Calcular ruta entre origen y destino
   const calculateRoute = () => {
     if (origin && destination) {
       const directionsService = new window.google.maps.DirectionsService();
@@ -49,9 +58,20 @@ const CalcularCosto = () => {
         (result, status) => {
           if (status === 'OK') {
             setDirectionsResponse(result);
-            const route = result.routes[0];
-            const distanceInKm = route.legs[0].distance.value / 1000; // Convertir metros a kilómetros
-            setDistance(distanceInKm.toFixed(2)); // Redondear a 2 decimales
+            const leg = result.routes[0].legs[0];
+
+            const routeDetails = {
+              distancia: parseFloat((leg.distance.value / 1000).toFixed(2)),
+              direccionOrigen: leg.start_address,
+              latitudOrigen: leg.start_location.lat(),
+              longitudOrigen: leg.start_location.lng(),
+              direccionDestino: leg.end_address,
+              latitudDestino: leg.end_location.lat(),
+              longitudDestino: leg.end_location.lng(),
+            };
+
+            setDistance(routeDetails.distancia);
+            setRouteDetails(routeDetails);
           } else {
             alert('No se pudo calcular la ruta. Intenta de nuevo.');
           }
@@ -62,61 +82,130 @@ const CalcularCosto = () => {
     }
   };
 
+  const isValidUUID = (uuid) => {
+    const regex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    return regex.test(uuid);
+  };
+
+  const createOrder = async () => {
+    if (!routeDetails || !beneficiaryInfo || !selectedVehicle) {
+      alert('Faltan datos necesarios para crear la orden de servicio.');
+      return;
+    }
+
+    const orderData = {
+      ordenDeServicioDTO: {
+        ubicacionIncidente: routeDetails?.direccionOrigen,
+        ubicacionDestino: routeDetails?.direccionDestino,
+        aseguradoId: beneficiaryInfo?.id,  // ID del asegurado (UUID)
+        vehiculoAseguradoId: selectedVehicle,  // ID del vehículo asegurado (UUID)
+        kilometrosRecorridos: routeDetails?.distancia || 0,  // Distancia recorrida
+        latitudIncidente: routeDetails?.latitudOrigen,  // Convertir latitud de incidente
+        longitudIncidente: routeDetails?.longitudOrigen,  // Convertir longitud de incidente
+        latitudDestino: routeDetails?.latitudDestino,  // Convertir latitud de destino
+        longitudDestino: routeDetails?.longitudDestino,  // Convertir longitud de destino
+      }
+    };
+
+    // Verificación de UUID
+    if (!isValidUUID(orderData.ordenDeServicioDTO.aseguradoId) || !isValidUUID(orderData.ordenDeServicioDTO.vehiculoAseguradoId)) {
+      alert('El ID del asegurado o del vehículo no es un UUID válido.');
+      return;
+    }
+
+    // Verificación de las ubicaciones
+    if (!orderData.ordenDeServicioDTO.ubicacionIncidente || !orderData.ordenDeServicioDTO.ubicacionDestino) {
+      alert('Las ubicaciones de incidente o destino no están disponibles.');
+      return;
+    }
+
+    console.log(orderData);  // Verifica los valores enviados
+
+    try {
+      const response = await fetch('http://localhost:5132/api/OrdenDeServicio', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert('Orden de servicio creada exitosamente');
+      } else {
+        const errorData = await response.json();
+        alert('Error al crear la orden de servicio: ' + JSON.stringify(errorData));
+      }
+    } catch (error) {
+      alert('Error en la solicitud: ' + error.message);
+    }
+  };
+
   return (
     <div className="container">
-      <Sidebar /> {/* Sidebar */}
-      <Header /> {/* Header */}
-      <div className="">
-        <div className="map-container">
-          <h2>Calculadora de Ruta</h2>
+      <Sidebar />
+      <Header />
+      <div className="map-container">
+        <h2>Calculadora de Ruta</h2>
 
-          {/* Asegurarnos que todo se carga bajo un solo LoadScript */}
-          <LoadScript googleMapsApiKey="AIzaSyC5WcTJIPfA-cdgqtnY5cnCD-KqxIVASAM" libraries={['places']}>
-            {/* Formulario de origen y destino */}
-            <div className="form-container">
-              {/* Campo de origen con Autocomplete */}
-              <Autocomplete onLoad={onOriginLoad} onPlaceChanged={onOriginPlaceChanged}>
-                <input
-                  type="text"
-                  placeholder="Dirección de Origen"
-                  value={origin}
-                  onChange={(e) => setOrigin(e.target.value)}
-                />
-              </Autocomplete>
+        {beneficiaryInfo && (
+          <div className="beneficiary-info">
+            <h3>Información del Asegurado</h3>
+            <p><strong>ID:</strong> {beneficiaryInfo.id}</p>
+            <p><strong>Nombre:</strong> {beneficiaryInfo.nombre} {beneficiaryInfo.apellido}</p>
+            <p><strong>Teléfono:</strong> {beneficiaryInfo.telefono}</p>
+            <p><strong>Vehículo Seleccionado:</strong> {selectedVehicle ? selectedVehicle : 'No seleccionado'}</p>
+          </div>
+        )}
 
-              {/* Campo de destino con Autocomplete */}
-              <Autocomplete onLoad={onDestinationLoad} onPlaceChanged={onDestinationPlaceChanged}>
-                <input
-                  type="text"
-                  placeholder="Dirección de Destino"
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                />
-              </Autocomplete>
+        <LoadScript googleMapsApiKey="AIzaSyC5WcTJIPfA-cdgqtnY5cnCD-KqxIVASAM" libraries={['places']}>
+          <div className="form-container">
+            <Autocomplete onLoad={onOriginLoad} onPlaceChanged={onOriginPlaceChanged}>
+              <input
+                type="text"
+                placeholder="Dirección de Origen"
+                value={origin}
+                onChange={(e) => setOrigin(e.target.value)}
+              />
+            </Autocomplete>
+            <Autocomplete onLoad={onDestinationLoad} onPlaceChanged={onDestinationPlaceChanged}>
+              <input
+                type="text"
+                placeholder="Dirección de Destino"
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
+              />
+            </Autocomplete>
+            <button onClick={calculateRoute}>Calcular Ruta</button>
+            <button onClick={createOrder}>Crear Orden de Servicio</button>
+          </div>
 
-              <button onClick={calculateRoute}>Calcular Ruta</button>
+          {routeDetails && (
+            <div className="route-details">
+              <h3>Detalles de la Ruta</h3>
+              <p><strong>Distancia:</strong> {routeDetails.distancia} km</p>
+              <p><strong>Dirección de Origen:</strong> {routeDetails.direccionOrigen}</p>
+              <p><strong>Latitud de Origen:</strong> {routeDetails.latitudOrigen}</p>
+              <p><strong>Longitud de Origen:</strong> {routeDetails.longitudOrigen}</p>
+              <p><strong>Dirección de Destino:</strong> {routeDetails.direccionDestino}</p>
+              <p><strong>Latitud de Destino:</strong> {routeDetails.latitudDestino}</p>
+              <p><strong>Longitud de Destino:</strong> {routeDetails.longitudDestino}</p>
             </div>
+          )}
 
-            {/* Mostrar la distancia calculada */}
-            {distance && (
-              <p>
-                Distancia: <strong>{distance} km</strong>
-              </p>
-            )}
-
-            {/* Mostrar el mapa */}
-            <GoogleMap
-              mapContainerStyle={{ width: '100%', height: '400px' }}
-              center={{ lat: 19.432608, lng: -99.133209 }} 
-              zoom={12}
-            >
-              {directionsResponse && <DirectionsRenderer directions={directionsResponse} />}
-            </GoogleMap>
-          </LoadScript>
-        </div>
+          <GoogleMap
+            mapContainerStyle={{ width: '100%', height: '400px' }}
+            center={{ lat: 19.432608, lng: -99.133209 }}
+            zoom={12}
+          >
+            {directionsResponse && <DirectionsRenderer directions={directionsResponse} />}
+          </GoogleMap>
+        </LoadScript>
       </div>
     </div>
   );
 };
 
 export default CalcularCosto;
+

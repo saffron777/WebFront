@@ -9,16 +9,17 @@ function VehiculoCRUD() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [formData, setFormData] = useState({
     id: '',
+    placa: '',
     marca: '',
     modelo: '',
-    placa: '',
-    proveedorId: '',
-    capacidad: '',
-    activo: true,
+    tipo: '',
+    aseguradoId: '',
+    polizaId: '',
   });
   const [isEditing, setIsEditing] = useState(false);
   const [vehiculos, setVehiculos] = useState([]);
-  const [proveedores, setProveedores] = useState([]);
+  const [asegurados, setAsegurados] = useState([]);
+  const [polizas, setPolizas] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(8);
 
@@ -26,53 +27,67 @@ function VehiculoCRUD() {
 
   useEffect(() => {
     fetchVehiculos();
+    fetchAsegurados();
+    fetchPolizas();
   }, []);
 
   const fetchVehiculos = () => {
-    fetch(`${API_BASE_URL}/vehiculo`)
+    fetch(`${API_BASE_URL}/VehiculoAsegurado`)
       .then((response) => response.json())
       .then((data) => setVehiculos(data))
-      .catch((error) => console.error('Error al cargar vehículos:', error));
+      .catch((error) => {
+        console.error('Error al cargar vehículos:', error);
+        toast.error('Error al cargar vehículos');
+      });
   };
 
-  const fetchProveedores = () => {
-    fetch(`${API_BASE_URL}/proveedor`)
+  const fetchAsegurados = () => {
+    fetch(`${API_BASE_URL}/Asegurado`)
       .then((response) => response.json())
-      .then((data) => setProveedores(data))
-      .catch((error) => console.error('Error al cargar proveedores:', error));
+      .then((data) => setAsegurados(data))
+      .catch((error) => {
+        console.error('Error al cargar asegurados:', error);
+        toast.error('Error al cargar asegurados');
+      });
+  };
+
+  const fetchPolizas = () => {
+    fetch(`${API_BASE_URL}/Poliza`)
+      .then((response) => response.json())
+      .then((data) => setPolizas(data))
+      .catch((error) => {
+        console.error('Error al cargar pólizas:', error);
+        toast.error('Error al cargar pólizas');
+      });
   };
 
   const handleOpenPopover = (
     data = {
       id: '',
+      placa: '',
       marca: '',
       modelo: '',
-      placa: '',
-      proveedorId: '',
-      capacidad: '',
-      activo: true,
+      tipo: '',
+      aseguradoId: '',
+      polizaId: '',
     },
     editing = false
   ) => {
     setFormData(data);
     setIsEditing(editing);
     setIsPopoverOpen(true);
-
-    if (!editing) {
-      fetchProveedores();
-    }
   };
 
   const handleClosePopover = () => {
     setIsPopoverOpen(false);
     setFormData({
       id: '',
+      placa: '',
       marca: '',
       modelo: '',
-      placa: '',
-      proveedorId: '',
-      capacidad: '',
-      activo: true,
+      tipo: '',
+      aseguradoId: '',
+      polizaId: '',
     });
     setIsEditing(false);
   };
@@ -85,28 +100,20 @@ function VehiculoCRUD() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const method = isEditing ? 'PUT' : 'POST';
     const url = isEditing
-      ? `${API_BASE_URL}/vehiculo/${formData.id}`
-      : `${API_BASE_URL}/vehiculo`;
+      ? `${API_BASE_URL}/VehiculoAsegurado/${formData.id}`
+      : `${API_BASE_URL}/VehiculoAsegurado`;
 
-    const body = isEditing
-      ? {
-          id: formData.id,
-          marca: formData.marca,
-          modelo: formData.modelo,
-          placa: formData.placa,
-          capacidad: parseInt(formData.capacidad, 10),
-          activo: formData.activo,
-        }
-      : {
-          marca: formData.marca,
-          modelo: formData.modelo,
-          placa: formData.placa,
-          proveedorId: formData.proveedorId,
-          capacidad: parseInt(formData.capacidad, 10),
-          activo: formData.activo,
-        };
+    const method = isEditing ? 'PUT' : 'POST';
+
+    const body = {
+      placa: formData.placa,
+      marca: formData.marca,
+      modelo: formData.modelo,
+      tipo: formData.tipo,
+      aseguradoId: formData.aseguradoId,
+      polizaId: formData.polizaId,
+    };
 
     fetch(url, {
       method,
@@ -115,11 +122,12 @@ function VehiculoCRUD() {
     })
       .then((response) => {
         if (!response.ok) throw new Error('Error al enviar los datos');
-        if (response.status !== 204) return response.json();
-      })
-      .then(() => {
         fetchVehiculos();
-        toast.success(isEditing ? 'Vehículo editado exitosamente' : 'Vehículo creado exitosamente');
+        toast.success(
+          isEditing
+            ? 'Vehículo editado exitosamente'
+            : 'Vehículo creado exitosamente'
+        );
       })
       .catch((error) => {
         console.error('Error en la operación:', error);
@@ -130,7 +138,7 @@ function VehiculoCRUD() {
   };
 
   const handleDelete = (id) => {
-    fetch(`${API_BASE_URL}/vehiculo/${id}`, {
+    fetch(`${API_BASE_URL}/VehiculoAsegurado/${id}`, {
       method: 'DELETE',
     })
       .then((response) => {
@@ -157,31 +165,33 @@ function VehiculoCRUD() {
       <Header />
       <Toaster position="top-right" reverseOrder={false} />
       <div className="main-content">
-        <h2>Gruas</h2>
+        <h2>Vehículos Asegurados</h2>
         <div className="add-user-btn-container">
           <button className="add-user-btn" onClick={() => handleOpenPopover()}>
-            Agregar Grua
+            Agregar Vehículo
           </button>
         </div>
         <table className="crud-table">
           <thead>
             <tr>
+              <th>Placa</th>
               <th>Marca</th>
               <th>Modelo</th>
-              <th>Placa</th>
-              <th>Capacidad</th>
-              <th>Activo</th>
+              <th>Tipo</th>
+              <th>Asegurado</th>
+              <th>Póliza</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {currentData.map((vehiculo) => (
               <tr key={vehiculo.id}>
+                <td>{vehiculo.placa}</td>
                 <td>{vehiculo.marca}</td>
                 <td>{vehiculo.modelo}</td>
-                <td>{vehiculo.placa}</td>
-                <td>{vehiculo.capacidad}</td>
-                <td>{vehiculo.activo ? 'Sí' : 'No'}</td>
+                <td>{vehiculo.tipo}</td>
+                <td>{asegurados.find(a => a.id === vehiculo.aseguradoId)?.nombre}</td>
+                <td>{polizas.find(p => p.id === vehiculo.polizaId)?.nombre}</td>
                 <td>
                   <button
                     className="edit-btn"
@@ -213,6 +223,17 @@ function VehiculoCRUD() {
             <h3>{isEditing ? 'Editar Vehículo' : 'Crear Vehículo'}</h3>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
+                <label htmlFor="placa">Placa</label>
+                <input
+                  id="placa"
+                  name="placa"
+                  className="form-input"
+                  value={formData.placa}
+                  onChange={handleFormChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
                 <label htmlFor="marca">Marca</label>
                 <input
                   id="marca"
@@ -235,59 +256,51 @@ function VehiculoCRUD() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="placa">Placa</label>
+                <label htmlFor="tipo">Tipo</label>
                 <input
-                  id="placa"
-                  name="placa"
+                  id="tipo"
+                  name="tipo"
                   className="form-input"
-                  value={formData.placa}
-                  onChange={handleFormChange}
-                  required
-                />
-              </div>
-              {!isEditing && (
-                <div className="form-group">
-                  <label htmlFor="proveedorId">Proveedor</label>
-                  <select
-                    id="proveedorId"
-                    name="proveedorId"
-                    className="form-input"
-                    value={formData.proveedorId}
-                    onChange={handleFormChange}
-                    required
-                  >
-                    <option value="">Seleccione un proveedor</option>
-                    {proveedores.map((proveedor) => (
-                      <option key={proveedor.id} value={proveedor.id}>
-                        {proveedor.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              <div className="form-group">
-                <label htmlFor="capacidad">Capacidad</label>
-                <input
-                  id="capacidad"
-                  name="capacidad"
-                  type="number"
-                  className="form-input"
-                  value={formData.capacidad}
+                  value={formData.tipo}
                   onChange={handleFormChange}
                   required
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="activo">Activo</label>
-                <input
-                  id="activo"
-                  name="activo"
-                  type="checkbox"
-                  checked={formData.activo}
-                  onChange={(e) =>
-                    setFormData({ ...formData, activo: e.target.checked })
-                  }
-                />
+                <label htmlFor="aseguradoId">Asegurado</label>
+                <select
+                  id="aseguradoId"
+                  name="aseguradoId"
+                  className="form-input"
+                  value={formData.aseguradoId}
+                  onChange={handleFormChange}
+                  required
+                >
+                  <option value="">Seleccione un Asegurado</option>
+                  {asegurados.map((asegurado) => (
+                    <option key={asegurado.id} value={asegurado.id}>
+                      {asegurado.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="polizaId">Póliza</label>
+                <select
+                  id="polizaId"
+                  name="polizaId"
+                  className="form-input"
+                  value={formData.polizaId}
+                  onChange={handleFormChange}
+                  required
+                >
+                  <option value="">Seleccione una Póliza</option>
+                  {polizas.map((poliza) => (
+                    <option key={poliza.id} value={poliza.id}>
+                      {poliza.nombre}
+                    </option>
+                  ))}
+                </select>
               </div>
               <button type="submit" className="submit-btn">
                 {isEditing ? 'Guardar Cambios' : 'Crear'}

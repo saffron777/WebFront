@@ -6,7 +6,8 @@ import { Dropdown, Menu, Avatar, Badge } from 'antd';
 function Header({ keycloak }) {  // Recibe keycloak como prop
   const [notificationCount, setNotificationCount] = useState(3);
 
-  const keycloakUrl = 'http://localhost:8080/realms/GruasUcab/account'; // URL para cambiar la contraseña
+  // URL actualizada para cambiar la contraseña en Keycloak
+  const keycloakUrl = 'https://gruasucab-u31026.vm.elestio.app/realms/GruasUcab/account'; 
 
   // Función para cambiar la contraseña
   const handleChangePassword = () => {
@@ -16,7 +17,8 @@ function Header({ keycloak }) {  // Recibe keycloak como prop
   // Función para cerrar sesión
   const handleLogout = () => {
     if (keycloak && keycloak.logout) {
-      keycloak.logout({ redirectUri: 'http://localhost:3000' });  // Redirige al inicio después de cerrar sesión
+      const redirectUri = `${window.location.origin}`; // Redirigir a la ruta actual
+      keycloak.logout({ redirectUri });
     } else {
       console.error('Keycloak no está definido correctamente.');
     }

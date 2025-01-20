@@ -14,6 +14,9 @@ function ServiceOrder() {
   const handleCrearOperador = () => {
     navigate('/operador'); // Navegar a la ruta de estatus de órdenes
   };
+  const handleCrearProveedor = () => {
+    navigate('/proveedorcrud'); // Navegar a la ruta de estatus de órdenes
+  };
 
   return (
     <div className="container">
@@ -36,7 +39,7 @@ function ServiceOrder() {
               <div className="button-title">Gestionar Conductor</div>
             </button>
 
-            <button className="large-button">
+            <button className="large-button" onClick={handleCrearProveedor}>
               <div className="button-icon">👤</div>
               <div className="button-title">Gestionar Proveedor</div>
             </button>

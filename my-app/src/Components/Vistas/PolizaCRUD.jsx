@@ -10,7 +10,7 @@ function PolizaCRUD() {
   const [formData, setFormData] = useState({
     id: '',
     nombre: '',
-    tipoCobertura: '',
+    tipoCobertura: 'Moto',
     kilometrosIncluidos: '',
     costoXKilometro: '',
   });
@@ -19,29 +19,27 @@ function PolizaCRUD() {
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const [pageSize] = useState(8); // Número de elementos por página
 
-  const API_BASE_URL = 'http://localhost:5132'; // URL base corregida
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
     fetchPolizas();
   }, []);
 
   const fetchPolizas = () => {
-    fetch(`${API_BASE_URL}/polizas`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-        return response.json();
-      })
+    fetch(`${API_BASE_URL}/poliza`)
+      .then((response) => response.json())
       .then((data) => setPolizas(data))
-      .catch((error) => {
-        console.error('Detalles del error al cargar pólizas:', error);
-        toast.error('No se pudieron cargar las pólizas. Verifica tu conexión o contacta al administrador.');
-      });
+      .catch((error) => console.error('Error al cargar pólizas:', error));
   };
 
   const handleOpenPopover = (
-    data = { id: '', nombre: '', tipoCobertura: '', kilometrosIncluidos: '', costoXKilometro: '' },
+    data = {
+      id: '',
+      nombre: '',
+      tipoCobertura: 'Moto',
+      kilometrosIncluidos: '',
+      costoXKilometro: '',
+    },
     editing = false
   ) => {
     setFormData(data);
@@ -51,7 +49,13 @@ function PolizaCRUD() {
 
   const handleClosePopover = () => {
     setIsPopoverOpen(false);
-    setFormData({ id: '', nombre: '', tipoCobertura: '', kilometrosIncluidos: '', costoXKilometro: '' });
+    setFormData({
+      id: '',
+      nombre: '',
+      tipoCobertura: 'Moto',
+      kilometrosIncluidos: '',
+      costoXKilometro: '',
+    });
     setIsEditing(false);
   };
 
@@ -62,13 +66,29 @@ function PolizaCRUD() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const method = isEditing ? 'PUT' : 'POST';
-    const url = `${API_BASE_URL}/polizas${isEditing ? `/${formData.id}` : ''}`;
+    const url = isEditing
+      ? `${API_BASE_URL}/poliza/${formData.id}` // El ID se incluye en la URL al editar
+      : `${API_BASE_URL}/poliza`;
+
+    const body = isEditing
+      ? {
+          tipoCobertura: formData.tipoCobertura,
+          kilometrosIncluidos: formData.kilometrosIncluidos,
+          costoXKilometro: formData.costoXKilometro,
+        }
+      : {
+          tipoCobertura: formData.tipoCobertura,
+          kilometrosIncluidos: formData.kilometrosIncluidos,
+          nombre: formData.nombre,
+          costoXKilometro: formData.costoXKilometro,
+        };
 
     fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(body),
     })
       .then((response) => {
         if (!response.ok) throw new Error('Error al enviar los datos');
@@ -80,24 +100,24 @@ function PolizaCRUD() {
       })
       .catch((error) => {
         console.error('Error en la operación:', error);
-        toast.error('Ocurrió un error al procesar la solicitud.');
+        toast.error('Ocurrió un error al procesar la solicitud');
       });
 
     handleClosePopover();
   };
 
   const handleDelete = (id) => {
-    fetch(`${API_BASE_URL}/polizas/${id}`, {
+    fetch(`${API_BASE_URL}/poliza/${id}`, {
       method: 'DELETE',
     })
       .then((response) => {
-        if (!response.ok) throw new Error('Error al eliminar la póliza');
+        if (!response.ok) throw new Error('Error al eliminar póliza');
         setPolizas(polizas.filter((poliza) => poliza.id !== id));
         toast.success('Póliza eliminada exitosamente');
       })
       .catch((error) => {
         console.error('Error al eliminar:', error);
-        toast.error('Ocurrió un error al eliminar la póliza.');
+        toast.error('Ocurrió un error al eliminar la póliza');
       });
   };
 
@@ -128,7 +148,7 @@ function PolizaCRUD() {
             <tr>
               <th>ID</th>
               <th>Nombre</th>
-              <th>Tipo de Cobertura</th>
+              <th>Tipo Cobertura</th>
               <th>Kilómetros Incluidos</th>
               <th>Costo por Kilómetro</th>
               <th>Acciones</th>
@@ -155,7 +175,6 @@ function PolizaCRUD() {
           </tbody>
         </table>
 
-        {/* Componente de paginación */}
         <Pagination
           current={currentPage}
           pageSize={pageSize}
@@ -185,28 +204,25 @@ function PolizaCRUD() {
                   className="form-input"
                   value={formData.nombre}
                   onChange={handleFormChange}
-                  required
+                  required={!isEditing}
+                  disabled={isEditing} // No editable en modo edición
                 />
               </div>
-
               <div className="form-group">
-  <label htmlFor="tipoCobertura">Tipo de Cobertura</label>
-  <select
-    id="tipoCobertura"
-    name="tipoCobertura"
-    className="form-input"
-    value={formData.tipoCobertura}
-    onChange={handleFormChange}
-    required
-  >
-    <option value="" disabled>Selecciona una opción</option>
-    <option value="Carro">Carro</option>
-    <option value="Moto">Moto</option>
-    <option value="Camioneta">Camioneta</option>
-  </select>
-</div>
-
-
+                <label htmlFor="tipoCobertura">Tipo de Cobertura</label>
+                <select
+                  id="tipoCobertura"
+                  name="tipoCobertura"
+                  className="form-input"
+                  value={formData.tipoCobertura}
+                  onChange={handleFormChange}
+                  required
+                >
+                  <option value="Moto">Moto</option>
+                  <option value="Carro">Carro</option>
+                  <option value="Camioneta">Camioneta</option>
+                </select>
+              </div>
               <div className="form-group">
                 <label htmlFor="kilometrosIncluidos">Kilómetros Incluidos</label>
                 <input
@@ -219,7 +235,6 @@ function PolizaCRUD() {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label htmlFor="costoXKilometro">Costo por Kilómetro</label>
                 <input
@@ -232,7 +247,6 @@ function PolizaCRUD() {
                   required
                 />
               </div>
-
               <div className="form-actions">
                 <button type="submit" className="submit-btn">
                   {isEditing ? 'Guardar Cambios' : 'Crear'}

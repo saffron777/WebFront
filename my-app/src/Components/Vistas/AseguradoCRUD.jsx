@@ -5,18 +5,16 @@ import Sidebar from '../sidebar';
 import Header from '../header';
 
 function AseguradoCRUD() {
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false); // Controla la visibilidad del formulario
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [formData, setFormData] = useState({
     id: '',
     nombre: '',
     apellido: '',
     documentoIdentidad: '',
     telefono: '',
-    polizaId: '',
-  }); // Datos del formulario
-  const [isEditing, setIsEditing] = useState(false); // Define si es edición o creación
-  const [asegurados, setAsegurados] = useState([]); // Lista de asegurados
-
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [asegurados, setAsegurados] = useState([]);
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
@@ -31,7 +29,7 @@ function AseguradoCRUD() {
   };
 
   const handleOpenPopover = (
-    data = { id: '', nombre: '', apellido: '', documentoIdentidad: '', telefono: '', polizaId: '' },
+    data = { id: '', nombre: '', apellido: '', documentoIdentidad: '', telefono: '' },
     editing = false
   ) => {
     setFormData(data);
@@ -41,7 +39,7 @@ function AseguradoCRUD() {
 
   const handleClosePopover = () => {
     setIsPopoverOpen(false);
-    setFormData({ id: '', nombre: '', apellido: '', documentoIdentidad: '', telefono: '', polizaId: '' });
+    setFormData({ id: '', nombre: '', apellido: '', documentoIdentidad: '', telefono: '' });
     setIsEditing(false);
   };
 
@@ -52,6 +50,15 @@ function AseguradoCRUD() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const requestBody = {
+      id: formData.id,
+      nombre: formData.nombre,
+      apellido: formData.apellido,
+      documentoIdentidad: formData.documentoIdentidad,
+      telefono: formData.telefono,
+    };
+
     const method = isEditing ? 'PUT' : 'POST';
     const url = isEditing
       ? `${API_BASE_URL}/asegurado/${formData.id}`
@@ -60,11 +67,14 @@ function AseguradoCRUD() {
     fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(requestBody),
     })
-      .then((response) => {
+      .then(async (response) => {
         if (!response.ok) throw new Error('Error al enviar datos');
-        return response.json();
+        if (response.status !== 204) {
+          return await response.json();
+        }
+        return null;
       })
       .then(() => {
         fetchAsegurados();
@@ -86,8 +96,14 @@ function AseguradoCRUD() {
     fetch(`${API_BASE_URL}/asegurado/${id}`, {
       method: 'DELETE',
     })
-      .then((response) => {
+      .then(async (response) => {
         if (!response.ok) throw new Error('Error al eliminar asegurado');
+        if (response.status !== 204) {
+          return await response.json();
+        }
+        return null;
+      })
+      .then(() => {
         setAsegurados(asegurados.filter((asegurado) => asegurado.id !== id));
         toast.success('Asegurado eliminado exitosamente');
       })
@@ -99,20 +115,18 @@ function AseguradoCRUD() {
 
   return (
     <div className="container">
-      <Sidebar /> {/* Usando el componente Sidebar */}
-      <Header /> {/* Usando el componente Header para Avatar y notificaciones */}
-      <Toaster position="top-right" reverseOrder={false} /> {/* Componente Toaster */}
+      <Sidebar />
+      <Header />
+      <Toaster position="top-right" reverseOrder={false} />
       <div className="main-content">
         <h2>Asegurados</h2>
 
-        {/* Botón Agregar Asegurado */}
         <div className="add-user-btn-container">
           <button className="add-user-btn" onClick={() => handleOpenPopover()}>
             Agregar Asegurado
           </button>
         </div>
 
-        {/* Tabla dinámica de asegurados */}
         <table className="crud-table">
           <thead>
             <tr>
@@ -121,7 +135,6 @@ function AseguradoCRUD() {
               <th>Apellido</th>
               <th>Documento de Identidad</th>
               <th>Teléfono</th>
-              <th>Póliza ID</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -133,7 +146,6 @@ function AseguradoCRUD() {
                 <td>{asegurado.apellido}</td>
                 <td>{asegurado.documentoIdentidad}</td>
                 <td>{asegurado.telefono}</td>
-                <td>{asegurado.polizaId}</td>
                 <td>
                   <button
                     className="edit-btn"
@@ -159,6 +171,19 @@ function AseguradoCRUD() {
           <div className="popover-content">
             <h3 className="popover-title">{isEditing ? 'Editar Asegurado' : 'Crear Asegurado'}</h3>
             <form onSubmit={handleSubmit}>
+              {isEditing && (
+                <div className="form-group">
+                  <label htmlFor="id">ID</label>
+                  <input
+                    type="text"
+                    id="id"
+                    name="id"
+                    className="form-input"
+                    value={formData.id}
+                    readOnly
+                  />
+                </div>
+              )}
               <div className="form-group">
                 <label htmlFor="nombre">Nombre</label>
                 <input
@@ -171,7 +196,6 @@ function AseguradoCRUD() {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label htmlFor="apellido">Apellido</label>
                 <input
@@ -184,7 +208,6 @@ function AseguradoCRUD() {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label htmlFor="documentoIdentidad">Documento de Identidad</label>
                 <input
@@ -197,7 +220,6 @@ function AseguradoCRUD() {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label htmlFor="telefono">Teléfono</label>
                 <input
@@ -210,20 +232,6 @@ function AseguradoCRUD() {
                   required
                 />
               </div>
-
-              <div className="form-group">
-                <label htmlFor="polizaId">Póliza ID</label>
-                <input
-                  type="text"
-                  id="polizaId"
-                  name="polizaId"
-                  className="form-input"
-                  value={formData.polizaId}
-                  onChange={handleFormChange}
-                  required
-                />
-              </div>
-
               <div className="form-actions">
                 <button type="submit" className="submit-btn">
                   {isEditing ? 'Guardar Cambios' : 'Crear'}

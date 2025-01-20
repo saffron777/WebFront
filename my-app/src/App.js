@@ -24,6 +24,10 @@ import ConductorCRUD from './Components/Vistas/ConductorCRUD';
 import OperadorCRUD from './Components/Vistas/OperadorCRUD';
 
 import './App.css'; // Importación de estilos
+import CRUDUsuarioProveedor from './Components/Vistas/UserProveedor';
+import VehiculosCRUD from './Components/Vistas/PanelVehiculos';
+import VehiculoAseguradoCRUD from './Components/Vistas/VehiculoParticularCRUD';
+import AsignarGruero from './Components/Vistas/AsignarGruero';
 
 function App() {
   // Establecemos los estados para Keycloak y la autenticación
@@ -77,7 +81,6 @@ function App() {
             {/* Definimos las rutas para las diferentes vistas de la aplicación */}
             <Routes>
               <Route path="/users" element={<UsersCRUD />} />
-              <Route path="/vehicles" element={<VehicleCRUD />} />
               <Route path="/orders" element={<ServiceOrder />} />
               <Route path="/notifications" element={<NotificationPanel />} />
               <Route path="/create-order" element={<CreateServiceOrder />} />
@@ -91,6 +94,11 @@ function App() {
               <Route path="/asegurado" element={<AseguradoCRUD />} />
               <Route path="/conductor" element={<ConductorCRUD />} />
               <Route path="/operador" element={<OperadorCRUD />} />
+              <Route path="/proveedorcrud" element={<CRUDUsuarioProveedor />} />
+              <Route path="/vehicles" element={<VehiculosCRUD />} />
+              <Route path="/gruas" element={<VehicleCRUD />} />
+              <Route path="/vehiculoparticular" element={<VehiculoAseguradoCRUD />} />
+              <Route path="/asignargruero" element={<AsignarGruero />} />
             </Routes>
           </div>
         </div>
