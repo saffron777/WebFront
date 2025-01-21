@@ -1,100 +1,97 @@
 import React, { useState } from 'react';
-import './sidebar.css'; // Estilos del sidebar
 import Header from '../header';
-import Sidebar from '../sidebar'; 
+import Sidebar from '../sidebar';
+import { toast } from 'react-hot-toast'; // Importar react-hot-toast
 
-function ViewProgress() {
-  const allOrders = [
-    { id: 1, name: 'Juan Pérez', orderNumber: 'ORD-001', progress: 'Aceptado' },
-    { id: 2, name: 'María García', orderNumber: 'ORD-002', progress: 'Localizado' },
-    { id: 3, name: 'Carlos López', orderNumber: 'ORD-003', progress: 'En Progreso' },
-    { id: 4, name: 'Ana Martínez', orderNumber: 'ORD-004', progress: 'Finalizado' },
-    { id: 5, name: 'Pedro Sánchez', orderNumber: 'ORD-005', progress: 'Aceptado' },
-    { id: 6, name: 'Lucía Fernández', orderNumber: 'ORD-006', progress: 'Localizado' },
-    { id: 7, name: 'Sofía Ramírez', orderNumber: 'ORD-007', progress: 'En Progreso' },
-    { id: 8, name: 'Diego Torres', orderNumber: 'ORD-008', progress: 'Finalizado' },
-    // Más órdenes...
-  ];
+function OrdenDetalle() {
+  const [orderId, setOrderId] = useState('');
+  const [orderDetails, setOrderDetails] = useState(null);
+  const [error, setError] = useState(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
-
-  const totalPages = Math.ceil(allOrders.length / itemsPerPage);
-
-  const paginatedOrders = allOrders.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const handlePageChange = (direction) => {
-    if (direction === 'next' && currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-    } else if (direction === 'prev' && currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
+  const fetchOrderDetails = async () => {
+    try {
+      setError(null); // Limpiar errores previos
+      const response = await fetch(`http://localhost:5132/api/OrdenDeServicio/${orderId}`);
+      if (!response.ok) {
+        throw new Error('No se pudo encontrar la orden con el ID proporcionado.');
+      }
+      const data = await response.json();
+      setOrderDetails(data); // Guardar los detalles de la orden
+    } catch (err) {
+      setOrderDetails(null);
+      setError(err.message);
+      toast.error('ID no encontrado.'); // Mostrar el mensaje de error usando react-hot-toast
     }
   };
 
-  const steps = ['Aceptado', 'Localizado', 'En Progreso', 'Finalizado'];
+  const handleInputChange = (e) => {
+    setOrderId(e.target.value);
+  };
+
+  const handleSearch = () => {
+    if (orderId.trim() === '') {
+      setError('Por favor, introduce un ID de orden.');
+      toast.error('Por favor, introduce un ID de orden.');
+      return;
+    }
+    fetchOrderDetails();
+  };
 
   return (
-   
     <div className="container">
-          <Sidebar /> {/* Usando el componente Sidebar */}
-          <Header /> {/* Usando el componente Header para Avatar y notificaciones */}import Header from '../header';
-
-          <div className=""></div>
-
+      <Sidebar /> {/* Sidebar existente */}
+      <Header /> {/* Header existente */}
       <div className="main-content">
-        <h2>Órdenes Activas</h2>
-        <div className="orders-container">
-          {paginatedOrders.map((order) => (
-            <div key={order.id} className="order-card">
-              <div className="order-header">
-                <h3>{order.name}</h3>
-                <span className="order-number">{order.orderNumber}</span>
-              </div>
-              <div className="progress-container">
-                {steps.map((step, index) => (
-                  <div
-                    key={index}
-                    className={`step ${steps.indexOf(order.progress) >= index ? 'active' : ''}`}
-                  >
-                    <div className="circle">{index + 1}</div>
-                    <span>{step}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="order-footer">
-                <span className={`progress-status ${order.progress.toLowerCase().replace(/ /g, '-')}`}>
-                  {order.progress}
-                </span>
-                <button className="details-btn">Ver Detalles</button>
-              </div>
+        <h2 className="title">Buscar Detalles de la Orden</h2>
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Introduce el ID de la orden"
+            value={orderId}
+            onChange={handleInputChange}
+            className="search-input"
+          />
+          <button onClick={handleSearch} className="search-btn">
+            Buscar
+          </button>
+        </div>
+
+        {error && <p className="error-message">{error}</p>}
+
+        {orderDetails && (
+          <div className="order-details">
+            <h3 className="details-title">Detalles de la Orden</h3>
+            <div className="details-grid">
+              <p><strong>ID:</strong> {orderDetails.id}</p>
+              <p><strong>Fecha de Creación:</strong> {orderDetails.fechaCreacion}</p>
+              <p><strong>Estado:</strong> {orderDetails.estado}</p>
+              <p><strong>Ubicación del Incidente:</strong> {orderDetails.ubicacionIncidente}</p>
+              <p><strong>Ubicación del Destino:</strong> {orderDetails.ubicacionDestino}</p>
+              <p><strong>Kilómetros Recorridos:</strong> {orderDetails.kilometrosRecorridos}</p>
+              <p><strong>Latitud del Incidente:</strong> {orderDetails.latitudIncidente}</p>
+              <p><strong>Longitud del Incidente:</strong> {orderDetails.longitudIncidente}</p>
+              <p><strong>Latitud del Destino:</strong> {orderDetails.latitudDestino}</p>
+              <p><strong>Longitud del Destino:</strong> {orderDetails.longitudDestino}</p>
+              <p><strong>Costo Total:</strong> {orderDetails.costoTotal}</p>
+              <p><strong>Costo Base:</strong> {orderDetails.costoBase}</p>
+              <p><strong>Asegurado ID:</strong> {orderDetails.aseguradoId}</p>
+              <p><strong>Vehículo Asegurado ID:</strong> {orderDetails.vehiculoAseguradoId}</p>
+              {orderDetails.costosAdicionales.length > 0 && (
+                <div>
+                  <strong>Costos Adicionales:</strong>
+                  <ul>
+                    {orderDetails.costosAdicionales.map((costo, index) => (
+                      <li key={index}>{costo}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-          ))}
-        </div>
-        <div className="pagination">
-          <button
-            className="pagination-btn"
-            onClick={() => handlePageChange('prev')}
-            disabled={currentPage === 1}
-          >
-            Anterior
-          </button>
-          <span>
-            Página {currentPage} de {totalPages}
-          </span>
-          <button
-            className="pagination-btn"
-            onClick={() => handlePageChange('next')}
-            disabled={currentPage === totalPages}
-          >
-            Siguiente
-          </button>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-export default ViewProgress;
+export default OrdenDetalle;

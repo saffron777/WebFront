@@ -11,7 +11,7 @@ const Sidebar = () => {
   // Verificar si el usuario tiene ciertos roles
   const isOperador = Array.isArray(roles) && roles.includes("Operador");
   const isAdministrador = Array.isArray(roles) && roles.includes("Administrador");
-
+  const isProveedor = Array.isArray(roles) && roles.includes("Proveedor");
   return (
     <div className="sidebar">
       <div className="logo">
@@ -66,9 +66,7 @@ const Sidebar = () => {
                 <FaClipboardList className="nav-icon" /> Órdenes
               </Link>
             </li>
-              <Link to="/tarifa">
-                <FaTag className="nav-icon" /> Tarifas
-              </Link>
+    
             </li>
             <li>
               <Link to="/asegurado">
@@ -87,6 +85,28 @@ const Sidebar = () => {
             </li>
           </>
         )}
+          {isProveedor && (
+          <>
+            <li>
+              <Link to="/users">
+                <FaUser className="nav-icon" /> Usuarios
+              </Link>
+            </li>
+          
+            <li>
+              <Link to="/vehicles">
+                <FaCar className="nav-icon" /> Vehículos
+              </Link>
+            </li>
+          </>
+        )}
+
+
+
+
+
+
+
 
         <li>
           <Link to="/notifications">

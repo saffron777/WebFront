@@ -6,6 +6,7 @@ import Header from '../header';
 
 function OperadorCRUD() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isEditPopoverOpen, setIsEditPopoverOpen] = useState(false);
   const [formData, setFormData] = useState({
     id: '',
     nombre: '',
@@ -16,11 +17,17 @@ function OperadorCRUD() {
     email: '',
     username: ''
   });
-  const [isEditing, setIsEditing] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    id: '',
+    nombre: '',
+    apellido: '',
+    departamentoId: '',
+    activo: true
+  });
   const [usuarios, setUsuarios] = useState([]);
+  const [departamentos, setDepartamentos] = useState([]); // Almacenará los departamentos
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const [pageSize] = useState(8); // Número de elementos por página
-  const [departamentos, setDepartamentos] = useState([]); // Almacenará los departamentos
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -43,14 +50,7 @@ function OperadorCRUD() {
       .catch(() => console.error('Error al cargar los departamentos'));
   };
 
-  const handleOpenPopover = (data = { id: '', nombre: '', apellido: '', departamentoId: '', activo: true, password: '', email: '', username: '' }, editing = false) => {
-    setFormData(data);
-    setIsEditing(editing);
-    setIsPopoverOpen(true);
-  };
-
-  const handleClosePopover = () => {
-    setIsPopoverOpen(false);
+  const handleOpenPopover = () => {
     setFormData({
       id: '',
       nombre: '',
@@ -61,12 +61,30 @@ function OperadorCRUD() {
       email: '',
       username: ''
     });
-    setIsEditing(false);
+    setIsPopoverOpen(true);
+  };
+
+  const handleOpenEditPopover = (data) => {
+    setEditFormData(data);
+    setIsEditPopoverOpen(true);
+  };
+
+  const handleClosePopover = () => {
+    setIsPopoverOpen(false);
+  };
+
+  const handleCloseEditPopover = () => {
+    setIsEditPopoverOpen(false);
   };
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleEditFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData({ ...editFormData, [name]: value });
   };
 
   const handleSubmit = (e) => {
@@ -78,36 +96,76 @@ function OperadorCRUD() {
       return;
     }
 
-    const method = isEditing ? 'PUT' : 'POST';
     const url = `${API_BASE_URL}/Usuario`;
 
     const usuarioDto = {
-      nombre: formData.nombre,
-      apellido: formData.apellido,
-      departamentoId: formData.departamentoId,
-      activo: formData.activo,
-      password: formData.password,
-      email: formData.email,
-      username: formData.username,
+      usuarioDto: {
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        departamentoId: formData.departamentoId,
+        activo: formData.activo,
+        password: formData.password,
+        email: formData.email,
+        username: formData.username,
+      }
     };
 
     fetch(url, {
-      method,
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuarioDto }), // Enviamos el objeto correctamente estructurado
+      body: JSON.stringify(usuarioDto), // Enviar el objeto correctamente estructurado
     })
       .then((response) => {
         if (!response.ok) throw new Error('Error al enviar los datos');
         if (response.status !== 204) return response.json(); // Solo cuando no es un '204 No Content'
       })
       .then(() => {
-        fetchUsuarios();
+        fetchUsuarios(); // Refrescar los usuarios
       })
-      .catch(() => {
-        console.error('Ocurrió un error al procesar la solicitud');
+      .catch((error) => {
+        console.error('Ocurrió un error al procesar la solicitud', error);
       })
       .finally(() => {
-        handleClosePopover();
+        handleClosePopover(); // Cerrar el popover después de enviar
+      });
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+
+    // Validación de datos antes de enviar
+    if (!editFormData.nombre || !editFormData.apellido || !editFormData.departamentoId) {
+      console.error('Todos los campos son obligatorios');
+      return;
+    }
+
+    const url = `${API_BASE_URL}/Usuario`;
+
+    const usuarioDto = {
+      id: editFormData.id,
+      nombre: editFormData.nombre,
+      apellido: editFormData.apellido,
+      departamentoId: editFormData.departamentoId,
+      activo: editFormData.activo,
+    };
+
+    fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(usuarioDto), // Enviar el objeto correctamente estructurado
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Error al enviar los datos: ${response.status}`);
+        if (response.status !== 204) return response.json(); // Solo cuando no es un '204 No Content'
+      })
+      .then(() => {
+        fetchUsuarios(); // Refrescar los usuarios
+      })
+      .catch((error) => {
+        console.error('Ocurrió un error al procesar la solicitud', error);
+      })
+      .finally(() => {
+        handleCloseEditPopover(); // Cerrar el popover después de enviar
       });
   };
 
@@ -132,6 +190,12 @@ function OperadorCRUD() {
   const startIndex = (currentPage - 1) * pageSize;
   const currentData = usuarios.slice(startIndex, startIndex + pageSize);
 
+  // Obtener el nombre del departamento por su ID
+  const getDepartamentoNombre = (departamentoId) => {
+    const departamento = departamentos.find((dep) => dep.id === departamentoId);
+    return departamento ? departamento.nombre : 'N/A';
+  };
+
   return (
     <div className="container">
       <Sidebar />
@@ -140,7 +204,7 @@ function OperadorCRUD() {
         <h2>Operadores</h2>
 
         <div className="add-user-btn-container">
-          <button className="add-user-btn" onClick={() => handleOpenPopover()}>
+          <button className="add-user-btn" onClick={handleOpenPopover}>
             Agregar Operador
           </button>
         </div>
@@ -151,7 +215,8 @@ function OperadorCRUD() {
               <th>ID</th>
               <th>Nombre</th>
               <th>Apellido</th>
-              <th>Email</th>
+              <th>Departamento</th>
+              <th>Activo</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -161,9 +226,10 @@ function OperadorCRUD() {
                 <td>{usuario.id}</td>
                 <td>{usuario.nombre}</td>
                 <td>{usuario.apellido}</td>
-                <td>{usuario.email}</td>
+                <td>{getDepartamentoNombre(usuario.departamentoId)}</td>
+                <td>{usuario.activo ? 'Sí' : 'No'}</td>
                 <td>
-                  <button className="edit-btn" onClick={() => handleOpenPopover(usuario, true)}>
+                  <button className="edit-btn" onClick={() => handleOpenEditPopover(usuario)}>
                     Editar
                   </button>
                   <button className="delete-btn" onClick={() => handleDelete(usuario.id)}>
@@ -188,14 +254,8 @@ function OperadorCRUD() {
       {isPopoverOpen && (
         <div className="popover">
           <div className="popover-content">
-            <h3 className="popover-title">{isEditing ? 'Editar Operador' : 'Crear Operador'}</h3>
+            <h3 className="popover-title">Crear Operador</h3>
             <form onSubmit={handleSubmit}>
-              {isEditing && (
-                <div className="form-group">
-                  <label htmlFor="id">ID</label>
-                  <input type="text" id="id" name="id" className="form-input" value={formData.id} readOnly />
-                </div>
-              )}
               <div className="form-group">
                 <label htmlFor="nombre">Nombre</label>
                 <input
@@ -293,9 +353,87 @@ function OperadorCRUD() {
 
               <div className="form-actions">
                 <button type="submit" className="submit-btn">
-                  {isEditing ? 'Guardar Cambios' : 'Crear'}
+                  Crear
                 </button>
                 <button type="button" className="cancel-btn" onClick={handleClosePopover}>
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isEditPopoverOpen && (
+        <div className="popover">
+          <div className="popover-content">
+            <h3 className="popover-title">Editar Operador</h3>
+            <form onSubmit={handleEditSubmit}>
+              <div className="form-group">
+                <label htmlFor="id">ID</label>
+                <input type="text" id="id" name="id" className="form-input" value={editFormData.id} readOnly />
+              </div>
+              <div className="form-group">
+                <label htmlFor="nombre">Nombre</label>
+                <input
+                  type="text"
+                  id="nombre"
+                  name="nombre"
+                  className="form-input"
+                  value={editFormData.nombre}
+                  onChange={handleEditFormChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="apellido">Apellido</label>
+                <input
+                  type="text"
+                  id="apellido"
+                  name="apellido"
+                  className="form-input"
+                  value={editFormData.apellido}
+                  onChange={handleEditFormChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="departamentoId">Departamento</label>
+                <select
+                  id="departamentoId"
+                  name="departamentoId"
+                  value={editFormData.departamentoId}
+                  onChange={handleEditFormChange}
+                  required
+                >
+                  <option value="">Seleccionar departamento</option>
+                  {departamentos.map((dep) => (
+                    <option key={dep.id} value={dep.id}>
+                      {dep.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="activo">Activo</label>
+                <input
+                  type="checkbox"
+                  id="activo"
+                  name="activo"
+                  className="form-input"
+                  checked={editFormData.activo}
+                  onChange={(e) => setEditFormData({ ...editFormData, activo: e.target.checked })}
+                />
+              </div>
+
+              <div className="form-actions">
+                <button type="submit" className="submit-btn">
+                  Guardar Cambios
+                </button>
+                <button type="button" className="cancel-btn" onClick={handleCloseEditPopover}>
                   Cancelar
                 </button>
               </div>
@@ -308,4 +446,3 @@ function OperadorCRUD() {
 }
 
 export default OperadorCRUD;
-

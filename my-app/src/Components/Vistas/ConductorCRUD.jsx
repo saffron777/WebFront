@@ -6,6 +6,7 @@ import Header from '../header';
 
 function ConductorCRUD() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isEditPopoverOpen, setIsEditPopoverOpen] = useState(false);
   const [formData, setFormData] = useState({
     id: '',
     nombre: '',
@@ -19,7 +20,13 @@ function ConductorCRUD() {
     email: '',
     username: ''
   });
-  const [isEditing, setIsEditing] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    id: '',
+    nombre: '',
+    apellido: '',
+    licencia: '',
+    proveedorId: '',
+  });
   const [conductores, setConductores] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const [pageSize] = useState(8); // Número de elementos por página
@@ -46,14 +53,7 @@ function ConductorCRUD() {
       .catch(() => console.error('Error al cargar los proveedores'));
   };
 
-  const handleOpenPopover = (data = { id: '', nombre: '', apellido: '', licencia: '', telefono: '', proveedorId: '', documentoIdentidad: '', activo: true, password: '', email: '', username: '' }, editing = false) => {
-    setFormData(data);
-    setIsEditing(editing);
-    setIsPopoverOpen(true);
-  };
-
-  const handleClosePopover = () => {
-    setIsPopoverOpen(false);
+  const handleOpenPopover = () => {
     setFormData({
       id: '',
       nombre: '',
@@ -67,12 +67,30 @@ function ConductorCRUD() {
       email: '',
       username: ''
     });
-    setIsEditing(false);
+    setIsPopoverOpen(true);
+  };
+
+  const handleOpenEditPopover = (data) => {
+    setEditFormData(data);
+    setIsEditPopoverOpen(true);
+  };
+
+  const handleClosePopover = () => {
+    setIsPopoverOpen(false);
+  };
+
+  const handleCloseEditPopover = () => {
+    setIsEditPopoverOpen(false);
   };
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleEditFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData({ ...editFormData, [name]: value });
   };
 
   const handleSubmit = (e) => {
@@ -84,39 +102,79 @@ function ConductorCRUD() {
       return;
     }
 
-    const method = isEditing ? 'PUT' : 'POST';
     const url = `${API_BASE_URL}/Conductor`;
 
     const conductorDTO = {
-      nombre: formData.nombre,
-      apellido: formData.apellido,
-      licencia: formData.licencia,
-      telefono: formData.telefono,
-      proveedorId: formData.proveedorId,
-      documentoIdentidad: formData.documentoIdentidad,
-      activo: formData.activo,
-      password: formData.password,
-      email: formData.email,
-      username: formData.username,
+      conductorDTO: {
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        licencia: formData.licencia,
+        telefono: formData.telefono,
+        proveedorId: formData.proveedorId,
+        documentoIdentidad: formData.documentoIdentidad,
+        activo: formData.activo,
+        password: formData.password,
+        email: formData.email,
+        username: formData.username,
+      }
     };
 
     fetch(url, {
-      method,
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ conductorDTO }),
+      body: JSON.stringify(conductorDTO), // Enviar el objeto correctamente estructurado
     })
       .then((response) => {
         if (!response.ok) throw new Error('Error al enviar los datos');
         if (response.status !== 204) return response.json(); // Solo cuando no es un '204 No Content'
       })
       .then(() => {
-        fetchConductores();
+        fetchConductores(); // Refrescar los conductores
       })
-      .catch(() => {
-        console.error('Ocurrió un error al procesar la solicitud');
+      .catch((error) => {
+        console.error('Ocurrió un error al procesar la solicitud', error);
       })
       .finally(() => {
-        handleClosePopover();
+        handleClosePopover(); // Cerrar el popover después de enviar
+      });
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+
+    // Validación de datos antes de enviar
+    if (!editFormData.id || !editFormData.nombre || !editFormData.apellido || !editFormData.licencia || !editFormData.proveedorId) {
+      console.error('Todos los campos son obligatorios');
+      return;
+    }
+
+    const url = `${API_BASE_URL}/Conductor`;
+
+    const conductorDTO = {
+      id: editFormData.id,
+      nombre: editFormData.nombre,
+      apellido: editFormData.apellido,
+      licencia: editFormData.licencia,
+      proveedorId: editFormData.proveedorId,
+    };
+
+    fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(conductorDTO), // Enviar el objeto correctamente estructurado
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Error al enviar los datos: ${response.status}`);
+        if (response.status !== 204) return response.json(); // Solo cuando no es un '204 No Content'
+      })
+      .then(() => {
+        fetchConductores(); // Refrescar los conductores
+      })
+      .catch((error) => {
+        console.error('Ocurrió un error al procesar la solicitud', error);
+      })
+      .finally(() => {
+        handleCloseEditPopover(); // Cerrar el popover después de enviar
       });
   };
 
@@ -149,7 +207,7 @@ function ConductorCRUD() {
         <h2>Conductores</h2>
 
         <div className="add-user-btn-container">
-          <button className="add-user-btn" onClick={() => handleOpenPopover()}>
+          <button className="add-user-btn" onClick={handleOpenPopover}>
             Agregar Conductor
           </button>
         </div>
@@ -160,7 +218,7 @@ function ConductorCRUD() {
               <th>ID</th>
               <th>Nombre</th>
               <th>Apellido</th>
-              <th>Email</th>
+              <th>Licencia</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -170,9 +228,11 @@ function ConductorCRUD() {
                 <td>{conductor.id}</td>
                 <td>{conductor.nombre}</td>
                 <td>{conductor.apellido}</td>
-                <td>{conductor.email}</td>
+                <td>{conductor.licencia}</td>
+              
+               
                 <td>
-                  <button className="edit-btn" onClick={() => handleOpenPopover(conductor, true)}>
+                  <button className="edit-btn" onClick={() => handleOpenEditPopover(conductor)}>
                     Editar
                   </button>
                   <button className="delete-btn" onClick={() => handleDelete(conductor.id)}>
@@ -197,14 +257,8 @@ function ConductorCRUD() {
       {isPopoverOpen && (
         <div className="popover">
           <div className="popover-content">
-            <h3 className="popover-title">{isEditing ? 'Editar Conductor' : 'Crear Conductor'}</h3>
+            <h3 className="popover-title">Crear Conductor</h3>
             <form onSubmit={handleSubmit}>
-              {isEditing && (
-                <div className="form-group">
-                  <label htmlFor="id">ID</label>
-                  <input type="text" id="id" name="id" className="form-input" value={formData.id} readOnly />
-                </div>
-              )}
               <div className="form-group">
                 <label htmlFor="nombre">Nombre</label>
                 <input
@@ -315,6 +369,19 @@ function ConductorCRUD() {
               </div>
 
               <div className="form-group">
+                <label htmlFor="documentoIdentidad">Documento de Identidad</label>
+                <input
+                  type="text"
+                  id="documentoIdentidad"
+                  name="documentoIdentidad"
+                  className="form-input"
+                  value={formData.documentoIdentidad}
+                  onChange={handleFormChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
                 <label htmlFor="activo">Activo</label>
                 <input
                   type="checkbox"
@@ -328,9 +395,88 @@ function ConductorCRUD() {
 
               <div className="form-actions">
                 <button type="submit" className="submit-btn">
-                  {isEditing ? 'Guardar Cambios' : 'Crear'}
+                  Crear
                 </button>
                 <button type="button" className="cancel-btn" onClick={handleClosePopover}>
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isEditPopoverOpen && (
+        <div className="popover">
+          <div className="popover-content">
+            <h3 className="popover-title">Editar Conductor</h3>
+            <form onSubmit={handleEditSubmit}>
+              <div className="form-group">
+                <label htmlFor="id">ID</label>
+                <input type="text" id="id" name="id" className="form-input" value={editFormData.id} readOnly />
+              </div>
+              <div className="form-group">
+                <label htmlFor="nombre">Nombre</label>
+                <input
+                  type="text"
+                  id="nombre"
+                  name="nombre"
+                  className="form-input"
+                  value={editFormData.nombre}
+                  onChange={handleEditFormChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="apellido">Apellido</label>
+                <input
+                  type="text"
+                  id="apellido"
+                  name="apellido"
+                  className="form-input"
+                  value={editFormData.apellido}
+                  onChange={handleEditFormChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="licencia">Licencia</label>
+                <input
+                  type="text"
+                  id="licencia"
+                  name="licencia"
+                  className="form-input"
+                  value={editFormData.licencia}
+                  onChange={handleEditFormChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="proveedorId">Proveedor</label>
+                <select
+                  id="proveedorId"
+                  name="proveedorId"
+                  value={editFormData.proveedorId}
+                  onChange={handleEditFormChange}
+                  required
+                >
+                  <option value="">Seleccionar proveedor</option>
+                  {proveedores.map((prov) => (
+                    <option key={prov.id} value={prov.id}>
+                      {prov.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-actions">
+                <button type="submit" className="submit-btn">
+                  Guardar Cambios
+                </button>
+                <button type="button" className="cancel-btn" onClick={handleCloseEditPopover}>
                   Cancelar
                 </button>
               </div>
